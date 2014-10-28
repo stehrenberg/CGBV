@@ -36,12 +36,14 @@ GLBatch modelBatch;
 #define GAUSS3x3      8
 #define GAUSS5x5      9
 #define GAUSS7x7      10
-#define TOTAL_SHADERS 11
+#define GAUSS5x5Mod   11
+#define GAUSS7x7Mod   12
+#define TOTAL_SHADERS 13
 
 GLuint fShader[TOTAL_SHADERS];  // high-level shader object handles
 
 const std::string shaderNames[TOTAL_SHADERS] = { "Passthrough", "Brightness_Contrast", "Sharpen", "Dilatation", "Erosion", "Laplace", "Sobel", "BewMit", "Gauss3x3", "Gauss5x5",
-"Gauss7x7" };
+"Gauss7x7", "Gauss5x5mod", "Gauss7x7mod" };
 
 GLint whichShader = PASS_THROUGH;       // default shader
 GLint secondShader = PASS_THROUGH;       // second shader
@@ -138,6 +140,14 @@ void InitGUI()
 	}
 
 	TwType shaderType = TwDefineEnumFromString("ShaderType", enumString.c_str());
+
+	if (strstr((char *)glGetString(GL_EXTENSIONS), "WGL_EXT_swap_control") != NULL)
+	{
+		typedef BOOL(APIENTRY *PFNWGLSWAPINTERVALFARPROC)(int);
+		PFNWGLSWAPINTERVALFARPROC wglSwapIntervalEXT = 0;
+		wglSwapIntervalEXT = (PFNWGLSWAPINTERVALFARPROC)wglGetProcAddress("wglSwapIntervalEXT");
+		if (wglSwapIntervalEXT != NULL) wglSwapIntervalEXT(0);
+	}
 
 	bar = TwNewBar("TweakBar");
 	TwDefine(" TweakBar size='200 400'");

@@ -9,7 +9,9 @@ set(SOURCES ImageProcessing.cpp
 	FragmentShaderErosion.glsl
 	FragmentShaderGauss3x3.glsl
 	FragmentShaderGauss5x5.glsl
+	FragmentShaderGauss5x5mod.glsl
 	FragmentShaderGauss7x7.glsl
+	FragmentShaderGauss7x7mod.glsl
 	FragmentShaderLaplace.glsl
 	FragmentShaderPassthrough.glsl
 	FragmentShaderSharpen.glsl
