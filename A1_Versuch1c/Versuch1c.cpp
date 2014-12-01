@@ -235,7 +235,7 @@ void CreateCylinder() {
 	plane.End();
 }
 
-void CreateSphere() {
+void CreateSphere(float xShift, float yShift, float zShift) {
 
 	float radius = 50.0f;
 	float diameter = radius * 2;
@@ -244,9 +244,9 @@ void CreateSphere() {
 	M3DVector3f bodyVertices[doubleArrayAccuracy*doubleArrayAccuracy];
 	M3DVector4f bodyColors[doubleArrayAccuracy*doubleArrayAccuracy];
 
-	m3dLoadVector3(bodyVertices[0], 0.0f, radius - diameter/accuracy, 0);
+	m3dLoadVector3(bodyVertices[0], xShift, radius - diameter/accuracy + yShift, zShift);
 	m3dLoadVector4(bodyColors[0], 1.0f, 0.8f, 0.2f, 1.0f);
-	m3dLoadVector3(bodyVertices[1], 0.0f, radius - 2*diameter/accuracy, 0);
+	m3dLoadVector3(bodyVertices[1], 0.0f + xShift, radius - 2*diameter/accuracy + yShift, zShift);
 	m3dLoadVector4(bodyColors[1], 0.1f, 0.3f, 0.0f, 1);
 
 	int i = 1;
@@ -256,7 +256,7 @@ void CreateSphere() {
 	for (GLfloat latitude = 0.0f; latitude <= 2*GL_PI; latitude += (GL_PI / accuracy)) {
 
 		float sliceRadius = radius * sin(latitude);
-		GLfloat y = radius * cos(latitude);
+		GLfloat y = radius * cos(latitude) + yShift;
 
 		// Kugelscheibe entlang der Laengengrade durchlaufen
 		for (GLfloat longitude = 0.0f; longitude <= (2.0f*GL_PI); longitude += (GL_PI / accuracy)) {
@@ -267,7 +267,7 @@ void CreateSphere() {
 			x = cos(longitude);
 			z = sin(longitude);
 
-			m3dLoadVector3(bodyVertices[2 * i], x*upperRadius,y, z*upperRadius);
+			m3dLoadVector3(bodyVertices[2 * i], x*upperRadius + xShift,y + yShift, z*upperRadius + zShift);
 			m3dLoadVector3(bodyVertices[2 * i + 1], x*lowerRadius, radius * cos(latitude + 2*GL_PI/accuracy), z*lowerRadius);
 
 			if (colorIndex%2 == 0)
@@ -371,11 +371,12 @@ void SetupRC() {
 	//initialisiert die standard shader
 	shaderManager.InitializeStockShaders();
 	transformPipeline.SetMatrixStacks(modelViewMatrix, projectionMatrix);
+
 	//erzeuge die geometrie
 	CreateCone();
 	CreateCube();
 	CreateCylinder();
-	CreateSphere();
+	CreateSphere(100.0f, 0.0f, 0.0f);
 
 	InitGUI();
 }
