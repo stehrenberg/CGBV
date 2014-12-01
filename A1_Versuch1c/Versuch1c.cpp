@@ -78,6 +78,17 @@ void TW_CALL SetScale(const void *value, void *clientData)
 
 	RenderScene();
 }
+
+//Get Funktion für GUI, damit GUI Variablen Wert zum anzeigen erhält
+void TW_CALL GetScale(void *value, void *clientData)
+{
+	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
+	unsigned int* uintptr = static_cast<unsigned int*>(value);
+
+	//Variablen Wert and GUI weiterreichen
+	*uintptr = scale;
+}
+
 //Set Funktion für GUI, wird aufgerufen wenn Variable im GUI geändert wird
 /*void TW_CALL SetTesselation(const void *value, void *clientData)
 {
@@ -104,18 +115,6 @@ void TW_CALL GetTesselation(void *value, void *clientData)
 	//Variablen Wert and GUI weiterreichen
 	*uintptr = tesselation;
 }*/
-
-//Get Funktion für GUI, damit GUI Variablen Wert zum anzeigen erhält
-void TW_CALL GetScale(void *value, void *clientData)
-{
-	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
-	unsigned int* uintptr = static_cast<unsigned int*>(value);
-
-	//Variablen Wert and GUI weiterreichen
-	*uintptr = scale;
-}
-
-
 
 
 //GUI
@@ -354,13 +353,13 @@ void CreateSphere(float xShift, float yShift, float zShift) {
 		for (GLfloat longitude = 0.0f; longitude <= (2.0f*GL_PI); longitude += (GL_PI / tesselation)) {
 
 			float upperRadius = sliceRadius;
-			float lowerRadius = radius * sin(longitude += (GL_PI / tesselation));
+			float lowerRadius = radius * sin(latitude + (GL_PI / tesselation));
 
 			x = cos(longitude);
 			z = sin(longitude);
 
-			m3dLoadVector3(bodyVertices[2 * i], x*upperRadius + xShift,y + yShift, z*upperRadius + zShift);
-			m3dLoadVector3(bodyVertices[2 * i + 1], x*lowerRadius, radius * cos(latitude + 2*GL_PI/tesselation), z*lowerRadius);
+			m3dLoadVector3(bodyVertices[2 * i], x*upperRadius + xShift, y, z*upperRadius + zShift);
+			m3dLoadVector3(bodyVertices[2 * i + 1], x*lowerRadius + xShift, radius * cos(latitude + GL_PI/tesselation), z*lowerRadius + zShift);
 
 			if (colorIndex % 2 == 0)
 				m3dLoadVector4(bodyColors[2 * i], 1.0f, 0.8f, 0.2f, 1.0f);
