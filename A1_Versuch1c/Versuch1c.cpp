@@ -35,9 +35,7 @@ GLBatch sphereBody;
 // Definition der Kreiszahl 
 #define GL_PI 3.1415f
 // choose between 8, 32, 128, 256
-#define accuracy 32
-#define arrayAccuracy ((2 * accuracy) + 2)
-#define doubleArrayAccuracy (2 * arrayAccuracy)
+//#define tesselation 32
 
 // Rotationsgroessen
 static float rotation[] = { 0, 0, 0, 0 };
@@ -46,6 +44,38 @@ static float rotation[] = { 0, 0, 0, 0 };
 bool bCull = false;
 bool bOutline = false;
 bool bDepth = true;
+
+#define tesselation 32//unsigned int tesselation = 0;
+#define arrayTesselation (2*tesselation + 2)//unsigned int arrayTesselation = 2 * tesselation + 2;
+#define doubleArrayTesselation (2* arrayTesselation)//unsigned int doubleArrayTesselation = 2 * arrayTesselation;
+
+
+//Set Funktion für GUI, wird aufgerufen wenn Variable im GUI geändert wird
+/*void TW_CALL SetTesselation(const void *value, void *clientData)
+{
+	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
+	const unsigned int* uintptr = static_cast<const unsigned int*>(value);
+
+	//Setzen der Variable auf neuen Wert
+	tesselation = *uintptr;
+	arrayTesselation = 2 * tesselation + 2;
+	doubleArrayTesselation = 2 * arrayTesselation;
+
+	//Hier kann nun der Aufruf gemacht werden um die Geometrie mit neuem Tesselationsfaktor zu erzeugen
+	CreateCone();
+	CreateCylinder();
+	CreateSphere();
+}
+
+//Get Funktion für GUI, damit GUI Variablen Wert zum anzeigen erhält
+void TW_CALL GetTesselation(void *value, void *clientData)
+{
+	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
+	unsigned int* uintptr = static_cast<unsigned int*>(value);
+
+	//Variablen Wert and GUI weiterreichen
+	*uintptr = tesselation;
+}*/
 
 
 //GUI
@@ -57,14 +87,18 @@ void InitGUI() {
 	TwAddVarRW(bar, "Depth Test?", TW_TYPE_BOOLCPP, &bDepth, "");
 	TwAddVarRW(bar, "Culling?", TW_TYPE_BOOLCPP, &bCull, "");
 	TwAddVarRW(bar, "Backface Wireframe?", TW_TYPE_BOOLCPP, &bOutline, "");
+
+	//Tesselation Faktor als unsigned 32 bit integer definiert
+	//TwAddVarCB(bar, "Tesselation", TW_TYPE_UINT32, SetTesselation, GetTesselation, NULL, "");
+
 	//Hier weitere GUI Variablen anlegen. Für Farbe z.B. den Typ TW_TYPE_COLOR4F benutzen
 }
 
 void CreateCone() {
 
 	//18 Vertices anlegen
-	M3DVector3f konusVertices[arrayAccuracy];
-	M3DVector4f konusColors[arrayAccuracy];
+	M3DVector3f konusVertices[arrayTesselation];
+	M3DVector4f konusColors[arrayTesselation];
 	float start = 100.0f;
 	float radius = 50.0f;
 	// Die Spitze des Konus ist ein Vertex, den alle Triangles gemeinsam haben;
@@ -75,7 +109,7 @@ void CreateCone() {
 	// um einen Triangle_Fan zu erzeugen
 	int iPivot = 1;
 	int i = 1;
-	for (float angle = 0.0f; angle < (2.0f*GL_PI); angle += (GL_PI / accuracy))
+	for (float angle = 0.0f; angle < (2.0f*GL_PI); angle += (GL_PI / tesselation))
 	{
 		// Berechne x und y Positionen des naechsten Vertex
 		float x = radius*sin(angle);
@@ -95,7 +129,7 @@ void CreateCone() {
 		i++;
 	}
 
-	konus.Begin(GL_TRIANGLE_FAN, arrayAccuracy);
+	konus.Begin(GL_TRIANGLE_FAN, arrayTesselation);
 	konus.CopyVertexData3f(konusVertices);
 	konus.CopyColorData4f(konusColors);
 	konus.End();
@@ -103,13 +137,13 @@ void CreateCone() {
 
 
 	// Erzeuge einen weiteren Triangle_Fan um den Boden zu bedecken
-	M3DVector3f bodenVertices[arrayAccuracy];
-	M3DVector4f bodenColors[arrayAccuracy];
+	M3DVector3f bodenVertices[arrayTesselation];
+	M3DVector4f bodenColors[arrayTesselation];
 	// Das Zentrum des Triangle_Fans ist im Ursprung
 	m3dLoadVector3(bodenVertices[0], 0, 0, start);
 	m3dLoadVector4(bodenColors[0], 1, 0, 0, 1);
 	i = 1;
-	for (float angle = 0.0f; angle < (2.0f*GL_PI); angle += (GL_PI / accuracy)) {
+	for (float angle = 0.0f; angle < (2.0f*GL_PI); angle += (GL_PI / tesselation)) {
 		// Berechne x und y Positionen des naechsten Vertex
 		float x = radius*sin(angle);
 		float y = radius*cos(angle);
@@ -128,7 +162,7 @@ void CreateCone() {
 		i++;
 	}
 
-	kboden.Begin(GL_TRIANGLE_FAN, arrayAccuracy);
+	kboden.Begin(GL_TRIANGLE_FAN, arrayTesselation);
 	kboden.CopyVertexData3f(bodenVertices);
 	kboden.CopyColorData4f(bodenColors);
 	kboden.End();
@@ -188,12 +222,12 @@ void CreateCylinder() {
 	GLfloat x, y, angle;
 	int i = 1;
 	float start = -125;
-	M3DVector3f fussVertices[arrayAccuracy];
-	M3DVector4f fussColors[arrayAccuracy];
-	M3DVector3f kopfVertices[arrayAccuracy];
-	M3DVector4f kopfColors[arrayAccuracy];
-	M3DVector3f planeVertices[doubleArrayAccuracy];
-	M3DVector4f planeColors[doubleArrayAccuracy];
+	M3DVector3f fussVertices[arrayTesselation];
+	M3DVector4f fussColors[arrayTesselation];
+	M3DVector3f kopfVertices[arrayTesselation];
+	M3DVector4f kopfColors[arrayTesselation];
+	M3DVector3f planeVertices[doubleArrayTesselation];
+	M3DVector4f planeColors[doubleArrayTesselation];
 	m3dLoadVector3(fussVertices[0], 0.0f, -50.0f, start);
 	m3dLoadVector4(fussColors[0], 0.0f, 0.7f, 0.0f, 1);
 	m3dLoadVector3(kopfVertices[0], 0.0f, 50.0f, start);
@@ -203,7 +237,7 @@ void CreateCylinder() {
 	m3dLoadVector3(planeVertices[1], 0.0f, 50.0f, start);
 	m3dLoadVector4(planeColors[1], 0.1f, 0.3f, 0.0f, 1);
 
-	for (angle = 0.0f; angle <= (2.0f*GL_PI); angle += (GL_PI / accuracy)) {
+	for (angle = 0.0f; angle <= (2.0f*GL_PI); angle += (GL_PI / tesselation)) {
 		// Berechne x und y Positionen des naechsten Vertex
 		x = 50.0f*sin(angle);
 		y = 50.0f*cos(angle);
@@ -221,9 +255,9 @@ void CreateCylinder() {
 		i++;
 	}
 
-	fuss.Begin(GL_TRIANGLE_FAN, arrayAccuracy);
-	kopf.Begin(GL_TRIANGLE_FAN, arrayAccuracy);
-	plane.Begin(GL_TRIANGLE_STRIP, doubleArrayAccuracy);
+	fuss.Begin(GL_TRIANGLE_FAN, arrayTesselation);
+	kopf.Begin(GL_TRIANGLE_FAN, arrayTesselation);
+	plane.Begin(GL_TRIANGLE_STRIP, doubleArrayTesselation);
 	fuss.CopyVertexData3f(fussVertices);
 	fuss.CopyColorData4f(fussColors);
 	kopf.CopyVertexData3f(kopfVertices);
@@ -241,36 +275,36 @@ void CreateSphere() {
 	float diameter = radius * 2;
 	GLfloat x, z;
 
-	M3DVector3f bodyVertices[doubleArrayAccuracy*doubleArrayAccuracy];
-	M3DVector4f bodyColors[doubleArrayAccuracy*doubleArrayAccuracy];
+	M3DVector3f bodyVertices[doubleArrayTesselation*doubleArrayTesselation];
+	M3DVector4f bodyColors[doubleArrayTesselation*doubleArrayTesselation];
 
-	m3dLoadVector3(bodyVertices[0], 0.0f, radius - diameter/accuracy, 0);
+	m3dLoadVector3(bodyVertices[0], 0.0f, radius - diameter / tesselation, 0);
 	m3dLoadVector4(bodyColors[0], 1.0f, 0.8f, 0.2f, 1.0f);
-	m3dLoadVector3(bodyVertices[1], 0.0f, radius - 2*diameter/accuracy, 0);
+	m3dLoadVector3(bodyVertices[1], 0.0f, radius - 2 * diameter / tesselation, 0);
 	m3dLoadVector4(bodyColors[1], 0.1f, 0.3f, 0.0f, 1);
 
 	int i = 1;
 	int colorIndex = 0;
 
 	// Kugel vertikal entlang der Breitengrade durchlaufen
-	for (GLfloat latitude = 0.0f; latitude <= 2*GL_PI; latitude += (GL_PI / accuracy)) {
+	for (GLfloat latitude = 0.0f; latitude <= 2 * GL_PI; latitude += (GL_PI / tesselation)) {
 
 		float sliceRadius = radius * sin(latitude);
 		GLfloat y = radius * cos(latitude);
 
 		// Kugelscheibe entlang der Laengengrade durchlaufen
-		for (GLfloat longitude = 0.0f; longitude <= (2.0f*GL_PI); longitude += (GL_PI / accuracy)) {
+		for (GLfloat longitude = 0.0f; longitude <= (2.0f*GL_PI); longitude += (GL_PI / tesselation)) {
 
 			float upperRadius = sliceRadius;
-			float lowerRadius = radius * sin(longitude += (GL_PI / accuracy));
-			
+			float lowerRadius = radius * sin(longitude += (GL_PI / tesselation));
+
 			x = cos(longitude);
 			z = sin(longitude);
 
-			m3dLoadVector3(bodyVertices[2 * i], x*upperRadius,y, z*upperRadius);
-			m3dLoadVector3(bodyVertices[2 * i + 1], x*lowerRadius, radius * cos(latitude + 2*GL_PI/accuracy), z*lowerRadius);
+			m3dLoadVector3(bodyVertices[2 * i], x*upperRadius, y, z*upperRadius);
+			m3dLoadVector3(bodyVertices[2 * i + 1], x*lowerRadius, radius * cos(latitude + 2 * GL_PI / tesselation), z*lowerRadius);
 
-			if (colorIndex%2 == 0)
+			if (colorIndex % 2 == 0)
 				m3dLoadVector4(bodyColors[2 * i], 1.0f, 0.8f, 0.2f, 1.0f);
 			else
 				m3dLoadVector4(bodyColors[2 * i + 1], 1.0f, 0.8f, 0.2f, 1.0f);
@@ -281,7 +315,7 @@ void CreateSphere() {
 		colorIndex++;
 	}
 
-	sphereBody.Begin(GL_TRIANGLE_STRIP, doubleArrayAccuracy*doubleArrayAccuracy);
+	sphereBody.Begin(GL_TRIANGLE_STRIP, doubleArrayTesselation*doubleArrayTesselation);
 	sphereBody.CopyVertexData3f(bodyVertices);
 	sphereBody.CopyColorData4f(bodyColors);
 	sphereBody.End();
