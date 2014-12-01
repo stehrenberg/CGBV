@@ -344,7 +344,7 @@ void CreateSphere(float xShift, float yShift, float zShift) {
 	int colorIndex = 0;
 
 	// Kugel vertikal entlang der Breitengrade durchlaufen
-	for (GLfloat latitude = 0.0f; latitude <= 2 * GL_PI; latitude += (GL_PI / tesselation)) {
+	for (GLfloat latitude = 0.0f; latitude <= GL_PI; latitude += (GL_PI / tesselation)) {
 
 		float sliceRadius = radius * sin(latitude);
 		GLfloat y = radius * cos(latitude) + yShift;
@@ -361,15 +361,20 @@ void CreateSphere(float xShift, float yShift, float zShift) {
 			m3dLoadVector3(bodyVertices[2 * i], x*upperRadius + xShift, y, z*upperRadius + zShift);
 			m3dLoadVector3(bodyVertices[2 * i + 1], x*lowerRadius + xShift, radius * cos(latitude + GL_PI/tesselation), z*lowerRadius + zShift);
 
-			if (colorIndex % 2 == 0)
+			if (colorIndex % 2 == 0) {
 				m3dLoadVector4(bodyColors[2 * i], 1.0f, 0.8f, 0.2f, 1.0f);
-			else
 				m3dLoadVector4(bodyColors[2 * i + 1], 1.0f, 0.8f, 0.2f, 1.0f);
+			}
+			else {
+				m3dLoadVector4(bodyColors[2 * i], 0.235f, 0.235f, 0.235f, 1.0f);
+				m3dLoadVector4(bodyColors[2 * i + 1], 0.235f, 0.235f, 0.235f, 1.0f);
+			}
 
 			i++;
 		}
-
+		
 		colorIndex++;
+
 	}
 
 	sphereBody.Begin(GL_TRIANGLE_STRIP, doubleArrayTesselation*doubleArrayTesselation);
