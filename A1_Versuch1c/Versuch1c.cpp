@@ -51,6 +51,7 @@ bool bDepth = true;
 #define tesselation 32//unsigned int tesselation = 0;
 #define arrayTesselation (2*tesselation + 2)//unsigned int arrayTesselation = 2 * tesselation + 2;
 #define doubleArrayTesselation (2* arrayTesselation)//unsigned int doubleArrayTesselation = 2 * arrayTesselation;
+
 //Prototypen
 void CreateCone(float, float, float);
 void CreateCube(float, float, float);
@@ -335,9 +336,9 @@ void CreateSphere(float xShift, float yShift, float zShift) {
 	M3DVector3f bodyVertices[doubleArrayTesselation*doubleArrayTesselation];
 	M3DVector4f bodyColors[doubleArrayTesselation*doubleArrayTesselation];
 
-	m3dLoadVector3(bodyVertices[0], xShift, radius - diameter/accuracy + yShift, zShift);
+	m3dLoadVector3(bodyVertices[0], xShift, radius - diameter/tesselation + yShift, zShift);
+	m3dLoadVector3(bodyVertices[1], 0.0f + xShift, radius - 2*diameter/tesselation + yShift, zShift);
 	m3dLoadVector4(bodyColors[0], 1.0f, 0.8f, 0.2f, 1.0f);
-	m3dLoadVector3(bodyVertices[1], 0.0f + xShift, radius - 2*diameter/accuracy + yShift, zShift);
 	m3dLoadVector4(bodyColors[1], 0.1f, 0.3f, 0.0f, 1);
 
 	int i = 1;
@@ -359,7 +360,7 @@ void CreateSphere(float xShift, float yShift, float zShift) {
 			z = sin(longitude);
 
 			m3dLoadVector3(bodyVertices[2 * i], x*upperRadius + xShift,y + yShift, z*upperRadius + zShift);
-			m3dLoadVector3(bodyVertices[2 * i + 1], x*lowerRadius, radius * cos(latitude + 2*GL_PI/accuracy), z*lowerRadius);
+			m3dLoadVector3(bodyVertices[2 * i + 1], x*lowerRadius, radius * cos(latitude + 2*GL_PI/tesselation), z*lowerRadius);
 
 			if (colorIndex % 2 == 0)
 				m3dLoadVector4(bodyColors[2 * i], 1.0f, 0.8f, 0.2f, 1.0f);
