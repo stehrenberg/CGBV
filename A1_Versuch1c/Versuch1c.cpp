@@ -40,6 +40,9 @@ GLBatch sphereBody;
 // Rotationsgroessen
 static float rotation[] = { 0, 0, 0, 0 };
 
+// Angabe der Skalierung fuer Objekte
+unsigned int scale = 1;
+
 // Flags fuer Schalter
 bool bCull = false;
 bool bOutline = false;
@@ -48,8 +51,32 @@ bool bDepth = true;
 #define tesselation 32//unsigned int tesselation = 0;
 #define arrayTesselation (2*tesselation + 2)//unsigned int arrayTesselation = 2 * tesselation + 2;
 #define doubleArrayTesselation (2* arrayTesselation)//unsigned int doubleArrayTesselation = 2 * arrayTesselation;
+//Prototypen
+void CreateCone(float, float, float);
+void CreateCube(float, float, float);
+void CreateCylinder(float, float, float);
+void CreateSphere(float, float, float);
 
 
+void RenderScene();
+
+//Set Funktion für GUI, wird aufgerufen wenn Variable im GUI geändert wird
+void TW_CALL SetScale(const void *value, void *clientData)
+{
+	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
+	const unsigned int* uintptr = static_cast<const unsigned int*>(value);
+
+	//Setzen der Variable auf neuen Wert
+	scale = *uintptr;
+
+	//Hier kann nun der Aufruf gemacht werden um die Geometrie mit neuem Scalefaktor zu erzeugen
+	CreateCone(0.0f, 0.0f, -100.0f);
+	CreateCube(-75.0f, 0.0f, 0.0f);
+	CreateCylinder(0.0f, 125.0f, 0.0f);
+	CreateSphere(100.0f, 0.0f, 0.0f);
+
+	RenderScene();
+}
 //Set Funktion für GUI, wird aufgerufen wenn Variable im GUI geändert wird
 /*void TW_CALL SetTesselation(const void *value, void *clientData)
 {
@@ -77,6 +104,18 @@ void TW_CALL GetTesselation(void *value, void *clientData)
 	*uintptr = tesselation;
 }*/
 
+//Get Funktion für GUI, damit GUI Variablen Wert zum anzeigen erhält
+void TW_CALL GetScale(void *value, void *clientData)
+{
+	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
+	unsigned int* uintptr = static_cast<unsigned int*>(value);
+
+	//Variablen Wert and GUI weiterreichen
+	*uintptr = scale;
+}
+
+
+
 
 //GUI
 TwBar *bar;
@@ -88,23 +127,31 @@ void InitGUI() {
 	TwAddVarRW(bar, "Culling?", TW_TYPE_BOOLCPP, &bCull, "");
 	TwAddVarRW(bar, "Backface Wireframe?", TW_TYPE_BOOLCPP, &bOutline, "");
 
+	//Scale Faktor als unsigned 32 bit integer definiert
+	TwAddVarCB(bar, "Groesse", TW_TYPE_UINT32, SetScale, GetScale, NULL, "");
+
+
+
 	//Tesselation Faktor als unsigned 32 bit integer definiert
 	//TwAddVarCB(bar, "Tesselation", TW_TYPE_UINT32, SetTesselation, GetTesselation, NULL, "");
 
 	//Hier weitere GUI Variablen anlegen. Für Farbe z.B. den Typ TW_TYPE_COLOR4F benutzen
 }
 
-void CreateCone() {
+void CreateCone(float xShift, float yShift, float zShift) {
 
 	//18 Vertices anlegen
 	M3DVector3f konusVertices[arrayTesselation];
 	M3DVector4f konusColors[arrayTesselation];
-	float start = 100.0f;
-	float radius = 50.0f;
+
+	float radius = 50.0f * scale;
+	float height = 75.0f * scale;
+	
 	// Die Spitze des Konus ist ein Vertex, den alle Triangles gemeinsam haben;
 	// um einen Konus anstatt einen Kreis zu produzieren muss der Vertex einen positiven z-Wert haben
-	m3dLoadVector3(konusVertices[0], 0.0f, 0.0f, 75 + start);
+	m3dLoadVector3(konusVertices[0], xShift, height + yShift, zShift);
 	m3dLoadVector4(konusColors[0], 0.0f, 1.0f, 0.0f, 1.0f);
+
 	// Kreise um den Mittelpunkt und spezifiziere Vertices entlang des Kreises
 	// um einen Triangle_Fan zu erzeugen
 	int iPivot = 1;
@@ -112,8 +159,8 @@ void CreateCone() {
 	for (float angle = 0.0f; angle < (2.0f*GL_PI); angle += (GL_PI / tesselation))
 	{
 		// Berechne x und y Positionen des naechsten Vertex
-		float x = radius*sin(angle);
-		float y = radius*cos(angle);
+		float x = radius*cos(angle);
+		float z = radius*sin(angle);
 
 		// Alterniere die Farbe zwischen Rot und Gruen
 		if ((iPivot % 2) == 0)
@@ -125,7 +172,7 @@ void CreateCone() {
 		iPivot++;
 
 		// Spezifiziere den naechsten Vertex des Triangle_Fans
-		m3dLoadVector3(konusVertices[i], x, y, start);
+		m3dLoadVector3(konusVertices[i], x + xShift, yShift, z + zShift);
 		i++;
 	}
 
@@ -140,13 +187,14 @@ void CreateCone() {
 	M3DVector3f bodenVertices[arrayTesselation];
 	M3DVector4f bodenColors[arrayTesselation];
 	// Das Zentrum des Triangle_Fans ist im Ursprung
-	m3dLoadVector3(bodenVertices[0], 0, 0, start);
+	m3dLoadVector3(bodenVertices[0], 0, 0, zShift);
 	m3dLoadVector4(bodenColors[0], 1, 0, 0, 1);
+
 	i = 1;
 	for (float angle = 0.0f; angle < (2.0f*GL_PI); angle += (GL_PI / tesselation)) {
 		// Berechne x und y Positionen des naechsten Vertex
 		float x = radius*sin(angle);
-		float y = radius*cos(angle);
+		float z = radius*cos(angle);
 
 		// Alterniere die Farbe zwischen Rot und Gruen
 		if ((iPivot % 2) == 0)
@@ -158,7 +206,7 @@ void CreateCone() {
 		iPivot++;
 
 		// Spezifiziere den naechsten Vertex des Triangle_Fans
-		m3dLoadVector3(bodenVertices[i], x, y, start);
+		m3dLoadVector3(bodenVertices[i], x + xShift, yShift, z + zShift);
 		i++;
 	}
 
@@ -168,24 +216,29 @@ void CreateCone() {
 	kboden.End();
 }
 
-void CreateCube() {
+void CreateCube(float xShift, float yShift, float zShift) {
+
+	float edgeLength = 25.0f * scale;
+
 	M3DVector3f bodenVertices[8];
 	M3DVector4f bodenColors[8];
-	m3dLoadVector3(bodenVertices[0], -50.0f, -50.0f, -50.0f);
+
+	m3dLoadVector3(bodenVertices[0], -edgeLength + xShift, -edgeLength + yShift, -edgeLength + zShift);
+	m3dLoadVector3(bodenVertices[1], edgeLength + xShift, -edgeLength + yShift, -edgeLength + zShift);
+	m3dLoadVector3(bodenVertices[2], edgeLength + xShift, edgeLength + yShift, -edgeLength + zShift);
+	m3dLoadVector3(bodenVertices[3], -edgeLength + xShift, edgeLength + yShift, -edgeLength + zShift);
+	m3dLoadVector3(bodenVertices[4], -edgeLength + xShift, edgeLength + yShift, edgeLength + zShift);
+	m3dLoadVector3(bodenVertices[5], -edgeLength + xShift, -edgeLength + yShift, edgeLength + zShift);
+	m3dLoadVector3(bodenVertices[6], edgeLength + xShift, -edgeLength + yShift, edgeLength + zShift);
+	m3dLoadVector3(bodenVertices[7], edgeLength + xShift, -edgeLength + yShift, -edgeLength + zShift);
+
 	m3dLoadVector4(bodenColors[0], 0.0f, 0.0f, 0.5f, 1);
-	m3dLoadVector3(bodenVertices[1], 50.0f, -50.0f, -50.0f);
 	m3dLoadVector4(bodenColors[1], 0.0f, 0.0f, 0.5f, 1);
-	m3dLoadVector3(bodenVertices[2], 50.0f, 50.0f, -50.0f);
 	m3dLoadVector4(bodenColors[2], 0.0f, 0.0f, 0.5f, 1);
-	m3dLoadVector3(bodenVertices[3], -50.0f, 50.0f, -50.0f);
 	m3dLoadVector4(bodenColors[3], 0.0f, 0.0f, 0.5f, 1);
-	m3dLoadVector3(bodenVertices[4], -50.0f, 50.0f, 50.0f);
 	m3dLoadVector4(bodenColors[4], 0.0f, 0.0f, 0.7f, 1);
-	m3dLoadVector3(bodenVertices[5], -50.0f, -50.0f, 50.0f);
 	m3dLoadVector4(bodenColors[5], 0.0f, 0.0f, 0.7f, 1);
-	m3dLoadVector3(bodenVertices[6], 50.0f, -50.0f, 50.0f);
 	m3dLoadVector4(bodenColors[6], 0.0f, 0.0f, 0.7f, 1);
-	m3dLoadVector3(bodenVertices[7], 50.0f, -50.0f, -50.0f);
 	m3dLoadVector4(bodenColors[7], 0.0f, 0.0f, 0.7f, 1);
 
 	cboden.Begin(GL_TRIANGLE_FAN, 8);
@@ -195,21 +248,22 @@ void CreateCube() {
 
 	M3DVector3f deckenVertices[8];
 	M3DVector4f deckenColors[8];
-	m3dLoadVector3(deckenVertices[0], 50.0f, 50.0f, 50.0f);
+	m3dLoadVector3(deckenVertices[0], edgeLength + xShift, edgeLength + yShift, edgeLength + zShift);
+	m3dLoadVector3(deckenVertices[1], edgeLength + xShift, -edgeLength + yShift, -edgeLength + zShift);
+	m3dLoadVector3(deckenVertices[2], edgeLength + xShift, -edgeLength + yShift, edgeLength + zShift);
+	m3dLoadVector3(deckenVertices[3], -edgeLength + xShift, -edgeLength + yShift, edgeLength + zShift);
+	m3dLoadVector3(deckenVertices[4], -edgeLength + xShift, edgeLength + yShift, edgeLength + zShift);
+	m3dLoadVector3(deckenVertices[5], -edgeLength + xShift, edgeLength + yShift, -edgeLength + zShift);
+	m3dLoadVector3(deckenVertices[6], edgeLength + xShift, edgeLength + yShift, -edgeLength + zShift);
+	m3dLoadVector3(deckenVertices[7], edgeLength + xShift, -edgeLength + yShift, -edgeLength + zShift);
+
 	m3dLoadVector4(deckenColors[0], 0.7f, 0.2f, 0.0f, 1);
-	m3dLoadVector3(deckenVertices[1], 50.0f, -50.0f, -50.0f);
 	m3dLoadVector4(deckenColors[1], 0.7f, 0.2f, 0.0f, 1);
-	m3dLoadVector3(deckenVertices[2], 50.0f, -50.0f, 50.0f);
 	m3dLoadVector4(deckenColors[2], 0.7f, 0.2f, 0.0f, 1);
-	m3dLoadVector3(deckenVertices[3], -50.0f, -50.0f, 50.0f);
 	m3dLoadVector4(deckenColors[3], 0.7f, 0.0f, 0.0f, 1);
-	m3dLoadVector3(deckenVertices[4], -50.0f, 50.0f, 50.0f);
 	m3dLoadVector4(deckenColors[4], 0.7f, 0.0f, 0.0f, 1);
-	m3dLoadVector3(deckenVertices[5], -50.0f, 50.0f, -50.0f);
 	m3dLoadVector4(deckenColors[5], 0.7f, 0.0f, 0.0f, 1);
-	m3dLoadVector3(deckenVertices[6], 50.0f, 50.0f, -50.0f);
 	m3dLoadVector4(deckenColors[6], 0.7f, 0.0f, 0.0f, 1);
-	m3dLoadVector3(deckenVertices[7], 50.0f, -50.0f, -50.0f);
 	m3dLoadVector4(deckenColors[7], 0.7f, 0.2f, 0.0f, 1);
 
 	decke.Begin(GL_TRIANGLE_FAN, 8);
@@ -218,39 +272,42 @@ void CreateCube() {
 	decke.End();
 }
 
-void CreateCylinder() {
-	GLfloat x, y, angle;
+void CreateCylinder(float xShift, float yShift, float zShift) {
+
+	GLfloat x, z, angle;
+	float radius = 50.0f * scale;
 	int i = 1;
-	float start = -125;
+
 	M3DVector3f fussVertices[arrayTesselation];
 	M3DVector4f fussColors[arrayTesselation];
 	M3DVector3f kopfVertices[arrayTesselation];
 	M3DVector4f kopfColors[arrayTesselation];
 	M3DVector3f planeVertices[doubleArrayTesselation];
 	M3DVector4f planeColors[doubleArrayTesselation];
-	m3dLoadVector3(fussVertices[0], 0.0f, -50.0f, start);
+
+	m3dLoadVector3(fussVertices[0], xShift, -radius + yShift, zShift);
+	m3dLoadVector3(kopfVertices[0], xShift, radius + yShift, zShift);
+	m3dLoadVector3(planeVertices[0], xShift, -radius + yShift, zShift);
+	m3dLoadVector3(planeVertices[1], xShift, radius + yShift, zShift);
+	
 	m3dLoadVector4(fussColors[0], 0.0f, 0.7f, 0.0f, 1);
-	m3dLoadVector3(kopfVertices[0], 0.0f, 50.0f, start);
 	m3dLoadVector4(kopfColors[0], 0.0f, 0.5f, 0.1f, 1);
-	m3dLoadVector3(planeVertices[0], 0.0f, -50.0f, start);
 	m3dLoadVector4(planeColors[0], 0.1f, 0.3f, 0.0f, 1);
-	m3dLoadVector3(planeVertices[1], 0.0f, 50.0f, start);
 	m3dLoadVector4(planeColors[1], 0.1f, 0.3f, 0.0f, 1);
 
 	for (angle = 0.0f; angle <= (2.0f*GL_PI); angle += (GL_PI / tesselation)) {
 		// Berechne x und y Positionen des naechsten Vertex
-		x = 50.0f*sin(angle);
-		y = 50.0f*cos(angle);
+		x = radius*sin(angle);
+		z = radius*cos(angle);
 
-		m3dLoadVector3(fussVertices[i], x, -50.0f, y + start);
+		m3dLoadVector3(fussVertices[i], x + xShift, -radius + yShift, z + zShift);
+		m3dLoadVector3(kopfVertices[i], -x, radius + yShift, z + zShift);
+		m3dLoadVector3(planeVertices[2 * i], x + xShift, -radius + yShift, z + zShift);
+		m3dLoadVector3(planeVertices[2 * i + 1], x + xShift, radius + yShift, z + zShift);
+
 		m3dLoadVector4(fussColors[i], 0.0f, 0.7f, 0.0f, 1.0f);
-
-		m3dLoadVector3(kopfVertices[i], -x, 50.0f, y + start);
 		m3dLoadVector4(kopfColors[i], 0.0f, 0.5f, 0.1f, 1.0f);
-
-		m3dLoadVector3(planeVertices[2 * i], x, -50.0f, y + start);
 		m3dLoadVector4(planeColors[2 * i], 0.1f, 0.3f, 0.0f, 1.0f);
-		m3dLoadVector3(planeVertices[2 * i + 1], x, 50.0f, y + start);
 		m3dLoadVector4(planeColors[2 * i + 1], 0.1f, 0.3f, 0.0f, 1.0f);
 		i++;
 	}
@@ -269,18 +326,18 @@ void CreateCylinder() {
 	plane.End();
 }
 
-void CreateSphere() {
+void CreateSphere(float xShift, float yShift, float zShift) {
 
-	float radius = 50.0f;
+	float radius = 50.0f  * scale;
 	float diameter = radius * 2;
 	GLfloat x, z;
 
 	M3DVector3f bodyVertices[doubleArrayTesselation*doubleArrayTesselation];
 	M3DVector4f bodyColors[doubleArrayTesselation*doubleArrayTesselation];
 
-	m3dLoadVector3(bodyVertices[0], 0.0f, radius - diameter / tesselation, 0);
+	m3dLoadVector3(bodyVertices[0], xShift, radius - diameter/accuracy + yShift, zShift);
 	m3dLoadVector4(bodyColors[0], 1.0f, 0.8f, 0.2f, 1.0f);
-	m3dLoadVector3(bodyVertices[1], 0.0f, radius - 2 * diameter / tesselation, 0);
+	m3dLoadVector3(bodyVertices[1], 0.0f + xShift, radius - 2*diameter/accuracy + yShift, zShift);
 	m3dLoadVector4(bodyColors[1], 0.1f, 0.3f, 0.0f, 1);
 
 	int i = 1;
@@ -290,7 +347,7 @@ void CreateSphere() {
 	for (GLfloat latitude = 0.0f; latitude <= 2 * GL_PI; latitude += (GL_PI / tesselation)) {
 
 		float sliceRadius = radius * sin(latitude);
-		GLfloat y = radius * cos(latitude);
+		GLfloat y = radius * cos(latitude) + yShift;
 
 		// Kugelscheibe entlang der Laengengrade durchlaufen
 		for (GLfloat longitude = 0.0f; longitude <= (2.0f*GL_PI); longitude += (GL_PI / tesselation)) {
@@ -301,8 +358,8 @@ void CreateSphere() {
 			x = cos(longitude);
 			z = sin(longitude);
 
-			m3dLoadVector3(bodyVertices[2 * i], x*upperRadius, y, z*upperRadius);
-			m3dLoadVector3(bodyVertices[2 * i + 1], x*lowerRadius, radius * cos(latitude + 2 * GL_PI / tesselation), z*lowerRadius);
+			m3dLoadVector3(bodyVertices[2 * i], x*upperRadius + xShift,y + yShift, z*upperRadius + zShift);
+			m3dLoadVector3(bodyVertices[2 * i + 1], x*lowerRadius, radius * cos(latitude + 2*GL_PI/accuracy), z*lowerRadius);
 
 			if (colorIndex % 2 == 0)
 				m3dLoadVector4(bodyColors[2 * i], 1.0f, 0.8f, 0.2f, 1.0f);
@@ -380,9 +437,9 @@ void RenderScene(void) {
 	//setze den Shader für das Rendern
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
 	//Zeichne
-	//DrawCone();
-	//DrawCube();
-	//DrawCylinder();
+	DrawCone();
+	DrawCube();
+	DrawCylinder();
 	DrawSphere();
 
 	// Hole die im Stack gespeicherten Transformationsmatrizen wieder zurück
@@ -405,11 +462,12 @@ void SetupRC() {
 	//initialisiert die standard shader
 	shaderManager.InitializeStockShaders();
 	transformPipeline.SetMatrixStacks(modelViewMatrix, projectionMatrix);
+
 	//erzeuge die geometrie
-	CreateCone();
-	CreateCube();
-	CreateCylinder();
-	CreateSphere();
+	CreateCone(0.0f, 0.0f, -100.0f);
+	CreateCube(-75.0f, 0.0f, 0.0f);
+	CreateCylinder(0.0f, 125.0f, 0.0f);
+	CreateSphere(100.0f, 0.0f, 0.0f);
 
 	InitGUI();
 }
