@@ -42,10 +42,49 @@ GLBatch sphereBody;
 // Rotationsgroessen
 static float rotation[] = { 0, 0, 0, 0 };
 
+// Angabe der Skalierung fuer Objekte
+unsigned int scale = 1;
+
 // Flags fuer Schalter
 bool bCull = false;
 bool bOutline = false;
 bool bDepth = true;
+
+//Prototypen
+void CreateCone(float, float, float);
+void CreateCube(float, float, float);
+void CreateCylinder(float, float, float);
+void CreateSphere(float, float, float);
+
+void RenderScene();
+
+//Set Funktion für GUI, wird aufgerufen wenn Variable im GUI geändert wird
+void TW_CALL SetScale(const void *value, void *clientData)
+{
+	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
+	const unsigned int* uintptr = static_cast<const unsigned int*>(value);
+
+	//Setzen der Variable auf neuen Wert
+	scale = *uintptr;
+
+	//Hier kann nun der Aufruf gemacht werden um die Geometrie mit neuem Scalefaktor zu erzeugen
+	CreateCone(0.0f, 0.0f, -100.0f);
+	CreateCube(-75.0f, 0.0f, 0.0f);
+	CreateCylinder(0.0f, 125.0f, 0.0f);
+	CreateSphere(100.0f, 0.0f, 0.0f);
+
+	RenderScene();
+}
+
+//Get Funktion für GUI, damit GUI Variablen Wert zum anzeigen erhält
+void TW_CALL GetScale(void *value, void *clientData)
+{
+	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
+	unsigned int* uintptr = static_cast<unsigned int*>(value);
+
+	//Variablen Wert and GUI weiterreichen
+	*uintptr = scale;
+}
 
 
 //GUI
@@ -57,6 +96,11 @@ void InitGUI() {
 	TwAddVarRW(bar, "Depth Test?", TW_TYPE_BOOLCPP, &bDepth, "");
 	TwAddVarRW(bar, "Culling?", TW_TYPE_BOOLCPP, &bCull, "");
 	TwAddVarRW(bar, "Backface Wireframe?", TW_TYPE_BOOLCPP, &bOutline, "");
+
+	//Scale Faktor als unsigned 32 bit integer definiert
+	TwAddVarCB(bar, "Groesse", TW_TYPE_UINT32, SetScale, GetScale, NULL, "");
+
+
 	//Hier weitere GUI Variablen anlegen. Für Farbe z.B. den Typ TW_TYPE_COLOR4F benutzen
 }
 
@@ -66,8 +110,8 @@ void CreateCone(float xShift, float yShift, float zShift) {
 	M3DVector3f konusVertices[arrayAccuracy];
 	M3DVector4f konusColors[arrayAccuracy];
 
-	float radius = 50.0f;
-	float height = 75.0f;
+	float radius = 50.0f * scale;
+	float height = 75.0f * scale;
 	
 	// Die Spitze des Konus ist ein Vertex, den alle Triangles gemeinsam haben;
 	// um einen Konus anstatt einen Kreis zu produzieren muss der Vertex einen positiven z-Wert haben
@@ -140,7 +184,7 @@ void CreateCone(float xShift, float yShift, float zShift) {
 
 void CreateCube(float xShift, float yShift, float zShift) {
 
-	float edgeLength = 25.0f;
+	float edgeLength = 25.0f * scale;
 
 	M3DVector3f bodenVertices[8];
 	M3DVector4f bodenColors[8];
@@ -197,7 +241,7 @@ void CreateCube(float xShift, float yShift, float zShift) {
 void CreateCylinder(float xShift, float yShift, float zShift) {
 
 	GLfloat x, z, angle;
-	float radius = 50.0f;
+	float radius = 50.0f * scale;
 	int i = 1;
 
 	M3DVector3f fussVertices[arrayAccuracy];
@@ -250,7 +294,7 @@ void CreateCylinder(float xShift, float yShift, float zShift) {
 
 void CreateSphere(float xShift, float yShift, float zShift) {
 
-	float radius = 50.0f;
+	float radius = 50.0f  * scale;
 	float diameter = radius * 2;
 	GLfloat x, z;
 
