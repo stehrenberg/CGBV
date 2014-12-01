@@ -134,24 +134,29 @@ void CreateCone() {
 	kboden.End();
 }
 
-void CreateCube() {
+void CreateCube(float xShift, float yShift, float zShift) {
+
+	float edgeLength = 25.0f;
+
 	M3DVector3f bodenVertices[8];
 	M3DVector4f bodenColors[8];
-	m3dLoadVector3(bodenVertices[0], -50.0f, -50.0f, -50.0f);
+
+	m3dLoadVector3(bodenVertices[0], -edgeLength + xShift, -edgeLength + yShift, -edgeLength + zShift);
+	m3dLoadVector3(bodenVertices[1], edgeLength + xShift, -edgeLength + yShift, -edgeLength + zShift);
+	m3dLoadVector3(bodenVertices[2], edgeLength + xShift, edgeLength + yShift, -edgeLength + zShift);
+	m3dLoadVector3(bodenVertices[3], -edgeLength + xShift, edgeLength + yShift, -edgeLength + zShift);
+	m3dLoadVector3(bodenVertices[4], -edgeLength + xShift, edgeLength + yShift, edgeLength + zShift);
+	m3dLoadVector3(bodenVertices[5], -edgeLength + xShift, -edgeLength + yShift, edgeLength + zShift);
+	m3dLoadVector3(bodenVertices[6], edgeLength + xShift, -edgeLength + yShift, edgeLength + zShift);
+	m3dLoadVector3(bodenVertices[7], edgeLength + xShift, -edgeLength + yShift, -edgeLength + zShift);
+
 	m3dLoadVector4(bodenColors[0], 0.0f, 0.0f, 0.5f, 1);
-	m3dLoadVector3(bodenVertices[1], 50.0f, -50.0f, -50.0f);
 	m3dLoadVector4(bodenColors[1], 0.0f, 0.0f, 0.5f, 1);
-	m3dLoadVector3(bodenVertices[2], 50.0f, 50.0f, -50.0f);
 	m3dLoadVector4(bodenColors[2], 0.0f, 0.0f, 0.5f, 1);
-	m3dLoadVector3(bodenVertices[3], -50.0f, 50.0f, -50.0f);
 	m3dLoadVector4(bodenColors[3], 0.0f, 0.0f, 0.5f, 1);
-	m3dLoadVector3(bodenVertices[4], -50.0f, 50.0f, 50.0f);
 	m3dLoadVector4(bodenColors[4], 0.0f, 0.0f, 0.7f, 1);
-	m3dLoadVector3(bodenVertices[5], -50.0f, -50.0f, 50.0f);
 	m3dLoadVector4(bodenColors[5], 0.0f, 0.0f, 0.7f, 1);
-	m3dLoadVector3(bodenVertices[6], 50.0f, -50.0f, 50.0f);
 	m3dLoadVector4(bodenColors[6], 0.0f, 0.0f, 0.7f, 1);
-	m3dLoadVector3(bodenVertices[7], 50.0f, -50.0f, -50.0f);
 	m3dLoadVector4(bodenColors[7], 0.0f, 0.0f, 0.7f, 1);
 
 	cboden.Begin(GL_TRIANGLE_FAN, 8);
@@ -161,21 +166,22 @@ void CreateCube() {
 
 	M3DVector3f deckenVertices[8];
 	M3DVector4f deckenColors[8];
-	m3dLoadVector3(deckenVertices[0], 50.0f, 50.0f, 50.0f);
+	m3dLoadVector3(deckenVertices[0], edgeLength + xShift, edgeLength + yShift, edgeLength + zShift);
+	m3dLoadVector3(deckenVertices[1], edgeLength + xShift, -edgeLength + yShift, -edgeLength + zShift);
+	m3dLoadVector3(deckenVertices[2], edgeLength + xShift, -edgeLength + yShift, edgeLength + zShift);
+	m3dLoadVector3(deckenVertices[3], -edgeLength + xShift, -edgeLength + yShift, edgeLength + zShift);
+	m3dLoadVector3(deckenVertices[4], -edgeLength + xShift, edgeLength + yShift, edgeLength + zShift);
+	m3dLoadVector3(deckenVertices[5], -edgeLength + xShift, edgeLength + yShift, -edgeLength + zShift);
+	m3dLoadVector3(deckenVertices[6], edgeLength + xShift, edgeLength + yShift, -edgeLength + zShift);
+	m3dLoadVector3(deckenVertices[7], edgeLength + xShift, -edgeLength + yShift, -edgeLength + zShift);
+
 	m3dLoadVector4(deckenColors[0], 0.7f, 0.2f, 0.0f, 1);
-	m3dLoadVector3(deckenVertices[1], 50.0f, -50.0f, -50.0f);
 	m3dLoadVector4(deckenColors[1], 0.7f, 0.2f, 0.0f, 1);
-	m3dLoadVector3(deckenVertices[2], 50.0f, -50.0f, 50.0f);
 	m3dLoadVector4(deckenColors[2], 0.7f, 0.2f, 0.0f, 1);
-	m3dLoadVector3(deckenVertices[3], -50.0f, -50.0f, 50.0f);
 	m3dLoadVector4(deckenColors[3], 0.7f, 0.0f, 0.0f, 1);
-	m3dLoadVector3(deckenVertices[4], -50.0f, 50.0f, 50.0f);
 	m3dLoadVector4(deckenColors[4], 0.7f, 0.0f, 0.0f, 1);
-	m3dLoadVector3(deckenVertices[5], -50.0f, 50.0f, -50.0f);
 	m3dLoadVector4(deckenColors[5], 0.7f, 0.0f, 0.0f, 1);
-	m3dLoadVector3(deckenVertices[6], 50.0f, 50.0f, -50.0f);
 	m3dLoadVector4(deckenColors[6], 0.7f, 0.0f, 0.0f, 1);
-	m3dLoadVector3(deckenVertices[7], 50.0f, -50.0f, -50.0f);
 	m3dLoadVector4(deckenColors[7], 0.7f, 0.2f, 0.0f, 1);
 
 	decke.Begin(GL_TRIANGLE_FAN, 8);
@@ -184,39 +190,42 @@ void CreateCube() {
 	decke.End();
 }
 
-void CreateCylinder() {
-	GLfloat x, y, angle;
+void CreateCylinder(float xShift, float yShift, float zShift) {
+
+	GLfloat x, z, angle;
+	float radius = 50.0f;
 	int i = 1;
-	float start = -125;
+
 	M3DVector3f fussVertices[arrayAccuracy];
 	M3DVector4f fussColors[arrayAccuracy];
 	M3DVector3f kopfVertices[arrayAccuracy];
 	M3DVector4f kopfColors[arrayAccuracy];
 	M3DVector3f planeVertices[doubleArrayAccuracy];
 	M3DVector4f planeColors[doubleArrayAccuracy];
-	m3dLoadVector3(fussVertices[0], 0.0f, -50.0f, start);
+
+	m3dLoadVector3(fussVertices[0], xShift, -radius + yShift, zShift);
+	m3dLoadVector3(kopfVertices[0], xShift, radius + yShift, zShift);
+	m3dLoadVector3(planeVertices[0], xShift, -radius + yShift, zShift);
+	m3dLoadVector3(planeVertices[1], xShift, radius + yShift, zShift);
+	
 	m3dLoadVector4(fussColors[0], 0.0f, 0.7f, 0.0f, 1);
-	m3dLoadVector3(kopfVertices[0], 0.0f, 50.0f, start);
 	m3dLoadVector4(kopfColors[0], 0.0f, 0.5f, 0.1f, 1);
-	m3dLoadVector3(planeVertices[0], 0.0f, -50.0f, start);
 	m3dLoadVector4(planeColors[0], 0.1f, 0.3f, 0.0f, 1);
-	m3dLoadVector3(planeVertices[1], 0.0f, 50.0f, start);
 	m3dLoadVector4(planeColors[1], 0.1f, 0.3f, 0.0f, 1);
 
 	for (angle = 0.0f; angle <= (2.0f*GL_PI); angle += (GL_PI / accuracy)) {
 		// Berechne x und y Positionen des naechsten Vertex
-		x = 50.0f*sin(angle);
-		y = 50.0f*cos(angle);
+		x = radius*sin(angle);
+		z = radius*cos(angle);
 
-		m3dLoadVector3(fussVertices[i], x, -50.0f, y + start);
+		m3dLoadVector3(fussVertices[i], x + xShift, -radius + yShift, z + zShift);
+		m3dLoadVector3(kopfVertices[i], -x, radius + yShift, z + zShift);
+		m3dLoadVector3(planeVertices[2 * i], x + xShift, -radius + yShift, z + zShift);
+		m3dLoadVector3(planeVertices[2 * i + 1], x + xShift, radius + yShift, z + zShift);
+
 		m3dLoadVector4(fussColors[i], 0.0f, 0.7f, 0.0f, 1.0f);
-
-		m3dLoadVector3(kopfVertices[i], -x, 50.0f, y + start);
 		m3dLoadVector4(kopfColors[i], 0.0f, 0.5f, 0.1f, 1.0f);
-
-		m3dLoadVector3(planeVertices[2 * i], x, -50.0f, y + start);
 		m3dLoadVector4(planeColors[2 * i], 0.1f, 0.3f, 0.0f, 1.0f);
-		m3dLoadVector3(planeVertices[2 * i + 1], x, 50.0f, y + start);
 		m3dLoadVector4(planeColors[2 * i + 1], 0.1f, 0.3f, 0.0f, 1.0f);
 		i++;
 	}
@@ -346,9 +355,9 @@ void RenderScene(void) {
 	//setze den Shader für das Rendern
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
 	//Zeichne
-	//DrawCone();
-	//DrawCube();
-	//DrawCylinder();
+	DrawCone();
+	DrawCube();
+	DrawCylinder();
 	DrawSphere();
 
 	// Hole die im Stack gespeicherten Transformationsmatrizen wieder zurück
@@ -374,8 +383,8 @@ void SetupRC() {
 
 	//erzeuge die geometrie
 	CreateCone();
-	CreateCube();
-	CreateCylinder();
+	CreateCube(-75.0f, 0.0f, 0.0f);
+	CreateCylinder(0.0f, 125.0f, 0.0f);
 	CreateSphere(100.0f, 0.0f, 0.0f);
 
 	InitGUI();
