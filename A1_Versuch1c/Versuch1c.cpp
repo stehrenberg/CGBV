@@ -60,17 +60,20 @@ void InitGUI() {
 	//Hier weitere GUI Variablen anlegen. Für Farbe z.B. den Typ TW_TYPE_COLOR4F benutzen
 }
 
-void CreateCone() {
+void CreateCone(float xShift, float yShift, float zShift) {
 
 	//18 Vertices anlegen
 	M3DVector3f konusVertices[arrayAccuracy];
 	M3DVector4f konusColors[arrayAccuracy];
-	float start = 100.0f;
+
 	float radius = 50.0f;
+	float height = 75.0f;
+	
 	// Die Spitze des Konus ist ein Vertex, den alle Triangles gemeinsam haben;
 	// um einen Konus anstatt einen Kreis zu produzieren muss der Vertex einen positiven z-Wert haben
-	m3dLoadVector3(konusVertices[0], 0.0f, 0.0f, 75 + start);
+	m3dLoadVector3(konusVertices[0], xShift, height + yShift, zShift);
 	m3dLoadVector4(konusColors[0], 0.0f, 1.0f, 0.0f, 1.0f);
+
 	// Kreise um den Mittelpunkt und spezifiziere Vertices entlang des Kreises
 	// um einen Triangle_Fan zu erzeugen
 	int iPivot = 1;
@@ -78,8 +81,8 @@ void CreateCone() {
 	for (float angle = 0.0f; angle < (2.0f*GL_PI); angle += (GL_PI / accuracy))
 	{
 		// Berechne x und y Positionen des naechsten Vertex
-		float x = radius*sin(angle);
-		float y = radius*cos(angle);
+		float x = radius*cos(angle);
+		float z = radius*sin(angle);
 
 		// Alterniere die Farbe zwischen Rot und Gruen
 		if ((iPivot % 2) == 0)
@@ -91,7 +94,7 @@ void CreateCone() {
 		iPivot++;
 
 		// Spezifiziere den naechsten Vertex des Triangle_Fans
-		m3dLoadVector3(konusVertices[i], x, y, start);
+		m3dLoadVector3(konusVertices[i], x + xShift, yShift, z + zShift);
 		i++;
 	}
 
@@ -106,13 +109,14 @@ void CreateCone() {
 	M3DVector3f bodenVertices[arrayAccuracy];
 	M3DVector4f bodenColors[arrayAccuracy];
 	// Das Zentrum des Triangle_Fans ist im Ursprung
-	m3dLoadVector3(bodenVertices[0], 0, 0, start);
+	m3dLoadVector3(bodenVertices[0], 0, 0, zShift);
 	m3dLoadVector4(bodenColors[0], 1, 0, 0, 1);
+
 	i = 1;
 	for (float angle = 0.0f; angle < (2.0f*GL_PI); angle += (GL_PI / accuracy)) {
 		// Berechne x und y Positionen des naechsten Vertex
 		float x = radius*sin(angle);
-		float y = radius*cos(angle);
+		float z = radius*cos(angle);
 
 		// Alterniere die Farbe zwischen Rot und Gruen
 		if ((iPivot % 2) == 0)
@@ -124,7 +128,7 @@ void CreateCone() {
 		iPivot++;
 
 		// Spezifiziere den naechsten Vertex des Triangle_Fans
-		m3dLoadVector3(bodenVertices[i], x, y, start);
+		m3dLoadVector3(bodenVertices[i], x + xShift, yShift, z + zShift);
 		i++;
 	}
 
@@ -382,7 +386,7 @@ void SetupRC() {
 	transformPipeline.SetMatrixStacks(modelViewMatrix, projectionMatrix);
 
 	//erzeuge die geometrie
-	CreateCone();
+	CreateCone(0.0f, 0.0f, -100.0f);
 	CreateCube(-75.0f, 0.0f, 0.0f);
 	CreateCylinder(0.0f, 125.0f, 0.0f);
 	CreateSphere(100.0f, 0.0f, 0.0f);
