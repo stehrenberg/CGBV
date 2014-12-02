@@ -31,15 +31,11 @@ GLBatch fuss;
 GLBatch plane;
 GLBatch sphereBody;
 
-
 // Definition der Kreiszahl 
 #define GL_PI 3.1415f
-// choose between 8, 32, 128, 256
-//#define tesselation 32
 
 // Rotationsgroessen
 static float rotation[] = { 0, 0, 0, 0 };
-
 
 // Flags fuer Schalter
 bool bCull = false;
@@ -48,13 +44,9 @@ bool bDepth = true;
 unsigned int scale = 1;
 unsigned int tess = 5;
 
-/*#define tesselation 32*/
 unsigned int tesselation = pow(2, tess);
-/*#define arraySize (2*tesselation + 2)*/
 unsigned int arraySize = 2 * tesselation + 2;
-/*#define doubleArraySize (2* arraySize)*/
 unsigned int doubleArraySize = 2 * arraySize;
-/*#define sphereArraySize (tesselation*(arraySize - 1) + 1)*2*/
 unsigned int sphereArraySize = (tesselation*(arraySize - 1) + 1) * 2;
 
 //Prototypen
@@ -63,6 +55,10 @@ void CreateCube(float, float, float);
 void CreateCylinder(float, float, float);
 void CreateSphere(float, float, float);
 void RenderScene();
+void DrawMaennchen();
+void DrawLimbs();
+void DrawUpperLimb();
+void DrawLowerLimb();
 
 //Set Funktion für GUI, wird aufgerufen wenn Variable im GUI geändert wird
 void TW_CALL SetScale(const void *value, void *clientData)
@@ -357,8 +353,8 @@ void CreateSphere(float xShift, float yShift, float zShift) {
 
 	m3dLoadVector3(bodyVertices[0], xShift, radius - diameter/tesselation + yShift, zShift);
 	m3dLoadVector3(bodyVertices[1], 0.0f + xShift, radius - 2*diameter/tesselation + yShift, zShift);
-	m3dLoadVector4(bodyColors[0], 1.0f, 0.8f, 0.2f, 1.0f);
-	m3dLoadVector4(bodyColors[1], 0.1f, 0.3f, 0.0f, 1);
+	m3dLoadVector4(bodyColors[0], 0.91f, 0.70f, 0.54f, 1.0f);
+	m3dLoadVector4(bodyColors[1], 0.91f, 0.70f, 0.54f, 1.0f);
 
 	int i = 1;
 
@@ -383,15 +379,19 @@ void CreateSphere(float xShift, float yShift, float zShift) {
 			m3dLoadVector3(bodyVertices[2 * i], x*upperRadius + xShift, y, z*upperRadius + zShift);
 			m3dLoadVector3(bodyVertices[2 * i + 1], x*lowerRadius + xShift, radius * cos(latitude + GL_PI/tesselation), z*lowerRadius + zShift);
 
-			if (colorIndex % 2 == 0) {
-				m3dLoadVector4(bodyColors[2 * i], 1.0f, 0.8f, 0.2f, 1.0f);
-				m3dLoadVector4(bodyColors[2 * i + 1], 1.0f, 0.8f, 0.2f, 1.0f);
-			}
-			else {
-				m3dLoadVector4(bodyColors[2 * i], 0.235f, 0.235f, 0.235f, 1.0f);
-				m3dLoadVector4(bodyColors[2 * i + 1], 0.235f, 0.235f, 0.235f, 1.0f);
-			}
+			//fuer Abgabe einkommentieren :)
+			//if (colorIndex % 2 == 0) {
+			//	m3dLoadVector4(bodyColors[2 * i], 1.0f, 0.8f, 0.2f, 1.0f);
+			//	m3dLoadVector4(bodyColors[2 * i + 1], 1.0f, 0.8f, 0.2f, 1.0f);
+			//}
+			//else {
+			//	m3dLoadVector4(bodyColors[2 * i], 0.235f, 0.235f, 0.235f, 1.0f);
+			//	m3dLoadVector4(bodyColors[2 * i + 1], 0.235f, 0.235f, 0.235f, 1.0f);
+			//}
 
+			
+			m3dLoadVector4(bodyColors[2 * i], 0.91f, 0.70f, 0.54f, 1.0f);
+			m3dLoadVector4(bodyColors[2 * i + 1], 0.91f, 0.70f, 0.54f, 1.0f);
 			i++;
 		}
 		
@@ -426,6 +426,124 @@ void DrawCylinder() {
 
 void DrawSphere() {
 	sphereBody.Draw();
+}
+
+void DrawMaennchen() {
+
+	// Kopf
+	modelViewMatrix.PushMatrix();
+	modelViewMatrix.Translate(0.0f, 95.0f, 0.0f);
+	modelViewMatrix.Scale(0.72, 0.72, 0.72);
+	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
+	DrawSphere();
+	modelViewMatrix.PopMatrix();
+
+	// Hals
+	modelViewMatrix.PushMatrix();
+	modelViewMatrix.Translate(0.0f, 55.0f, 0.0f);
+	modelViewMatrix.Scale(0.25, 0.15, 0.25);
+	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
+	DrawCylinder();
+	modelViewMatrix.PopMatrix();
+
+	// Rumpf zeichnen
+	modelViewMatrix.PushMatrix();
+	modelViewMatrix.Translate(0.0f, 0.0f, 0.0f);
+	modelViewMatrix.Scale(0.9, 1.0, 0.7);
+	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
+	DrawCylinder();
+	modelViewMatrix.PopMatrix();
+
+	// Giedmaßen zeichnen
+	DrawLimbs();
+}
+
+void DrawLimbs() {
+
+	// Oberes Glied
+	DrawUpperLimb();
+	// Unteres Glied
+	//DrawLowerLimb();
+}
+
+
+void DrawUpperLimb() {
+
+	// rechten Arm
+	modelViewMatrix.PushMatrix();
+	modelViewMatrix.Translate(60.0f, 10.0f, 0.0f);
+	modelViewMatrix.Rotate(30.0, 0.0, 0.0, 1.0);
+	modelViewMatrix.Scale(0.2, 0.75, 0.2);
+	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
+	DrawCylinder();
+	modelViewMatrix.PopMatrix();
+
+	// rechte Hand
+	modelViewMatrix.PushMatrix();
+	modelViewMatrix.Translate(79.0f, -22.0f, 0.0f);
+	modelViewMatrix.Scale(0.2, 0.2, 0.2);
+	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
+	DrawSphere();
+	modelViewMatrix.PopMatrix();
+
+	// linkes Bein
+	modelViewMatrix.PushMatrix();
+	modelViewMatrix.Translate(-20.0f, -80.0f, 0.0f);
+	modelViewMatrix.Rotate(-8.0, 1.0, 0.0, 0.0);
+	modelViewMatrix.Scale(0.3, 0.8, 0.3);
+	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
+	DrawCylinder();
+	modelViewMatrix.PopMatrix();
+
+	// linker Fuss
+	modelViewMatrix.PushMatrix();
+	modelViewMatrix.Translate(-20.0f, -125.0f, 12.0f);
+	modelViewMatrix.Rotate(-8.0, 1.0, 0.0, 0.0);
+	modelViewMatrix.Scale(0.5, 0.3, 0.9);
+	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
+	DrawCube();
+	modelViewMatrix.PopMatrix();
+
+	// linker Arm
+	modelViewMatrix.PushMatrix();
+	modelViewMatrix.Translate(-60.0f, 10.0f, 0.0f);
+	modelViewMatrix.Rotate(-30.0, 0.0, 0.0, 1.0);
+	modelViewMatrix.Scale(0.2, 0.75, 0.2);
+	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
+	DrawCylinder();
+	modelViewMatrix.PopMatrix();
+
+	// linke Hand
+	modelViewMatrix.PushMatrix();
+	modelViewMatrix.Translate(-79.0f, -22.0f, 0.0f);
+	modelViewMatrix.Scale(0.2, 0.2, 0.2);
+	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
+	DrawSphere();
+	modelViewMatrix.PopMatrix();
+
+	// rechtes Bein
+	modelViewMatrix.PushMatrix();
+	modelViewMatrix.Translate(20.0f, -80.0f, 0.0f);
+	modelViewMatrix.Rotate(8.0, 1.0, 0.0, 0.0);
+	modelViewMatrix.Scale(0.3, 0.8, 0.3);
+	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
+	DrawCylinder();
+	modelViewMatrix.PopMatrix();
+
+	// rechter Fuss
+	modelViewMatrix.PushMatrix();
+	modelViewMatrix.Translate(20.0f, -128.0f, 0.0f);
+	modelViewMatrix.Rotate(8.0, 1.0, 0.0, 0.0);
+	modelViewMatrix.Scale(0.5, 0.3, 0.9);
+	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
+	DrawCube();
+	modelViewMatrix.PopMatrix();
+	
+
+}
+
+void DrawLowerLimb() {
+
 }
 
 // Aufruf draw scene
@@ -468,9 +586,10 @@ void RenderScene(void) {
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
 	//Zeichne
 	//DrawCone();
-	DrawCube();
-	DrawCylinder();
-	DrawSphere();
+	//DrawCube();
+	//DrawCylinder();
+	//DrawSphere();
+	DrawMaennchen();
 
 	// Hole die im Stack gespeicherten Transformationsmatrizen wieder zurück
 	modelViewMatrix.PopMatrix();
@@ -495,9 +614,16 @@ void SetupRC() {
 
 	//erzeuge die geometrie
 	//CreateCone(0.0f, 0.0f, -100.0f);
-	CreateCube(-75.0f, 0.0f, 0.0f);
-	CreateCylinder(0.0f, 125.0f, 0.0f);
-	CreateSphere(100.0f, 0.0f, 0.0f);
+
+	// fuer Praesentation einkommentieren :)
+	//CreateCube(-75.0f, 0.0f, 0.0f);
+	//CreateCylinder(0.0f, 125.0f, 0.0f);
+	//CreateSphere(100.0f, 0.0f, 0.0f);
+
+	// fuer Maennchen einkommentieren :)
+	CreateCube(0, 0, 0);
+	CreateCylinder(0, 0, 0);
+	CreateSphere(0, 0, 0);
 
 	InitGUI();
 }
