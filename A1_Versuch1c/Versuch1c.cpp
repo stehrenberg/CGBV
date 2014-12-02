@@ -40,26 +40,28 @@ GLBatch sphereBody;
 // Rotationsgroessen
 static float rotation[] = { 0, 0, 0, 0 };
 
-// Angabe der Skalierung fuer Objekte
-unsigned int scale = 1;
 
 // Flags fuer Schalter
 bool bCull = false;
 bool bOutline = false;
 bool bDepth = true;
+unsigned int scale = 1;
+unsigned int tess = 5;
 
-#define tesselation 32//unsigned int tesselation = 0;
-#define arraySize (2*tesselation + 2)//unsigned int arraySize = 2 * tesselation + 2;
-#define doubleArraySize (2* arraySize)//unsigned int doubleArraySize = 2 * arraySize;
-#define sphereArraySize (tesselation*(arraySize - 1) + 1)*2
+/*#define tesselation 32*/
+unsigned int tesselation = pow(2, tess);
+/*#define arraySize (2*tesselation + 2)*/
+unsigned int arraySize = 2 * tesselation + 2;
+/*#define doubleArraySize (2* arraySize)*/
+unsigned int doubleArraySize = 2 * arraySize;
+/*#define sphereArraySize (tesselation*(arraySize - 1) + 1)*2*/
+unsigned int sphereArraySize = (tesselation*(arraySize - 1) + 1) * 2;
 
 //Prototypen
 void CreateCone(float, float, float);
 void CreateCube(float, float, float);
 void CreateCylinder(float, float, float);
 void CreateSphere(float, float, float);
-
-
 void RenderScene();
 
 //Set Funktion für GUI, wird aufgerufen wenn Variable im GUI geändert wird
@@ -72,9 +74,9 @@ void TW_CALL SetScale(const void *value, void *clientData)
 	scale = *uintptr;
 
 	//Hier kann nun der Aufruf gemacht werden um die Geometrie mit neuem Scalefaktor zu erzeugen
-	CreateCone(0.0f, 0.0f, -100.0f);
+	/*CreateCone(0.0f, 0.0f, -100.0f);
 	CreateCube(-75.0f, 0.0f, 0.0f);
-	CreateCylinder(0.0f, 125.0f, 0.0f);
+	CreateCylinder(0.0f, 125.0f, 0.0f);*/
 	CreateSphere(100.0f, 0.0f, 0.0f);
 
 	RenderScene();
@@ -91,20 +93,25 @@ void TW_CALL GetScale(void *value, void *clientData)
 }
 
 //Set Funktion für GUI, wird aufgerufen wenn Variable im GUI geändert wird
-/*void TW_CALL SetTesselation(const void *value, void *clientData)
+void TW_CALL SetTesselation(const void *value, void *clientData)
 {
 	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
 	const unsigned int* uintptr = static_cast<const unsigned int*>(value);
 
-	//Setzen der Variable auf neuen Wert
-	tesselation = *uintptr;
+	//Setzen der Variablen auf neuen Wert
+	tess = *uintptr;
+	tesselation = pow(2, tess);
 	arraySize = 2 * tesselation + 2;
 	doubleArraySize = 2 * arraySize;
+	sphereArraySize = (tesselation*(arraySize - 1) + 1) * 2;
 
-	//Hier kann nun der Aufruf gemacht werden um die Geometrie mit neuem Tesselationsfaktor zu erzeugen
-	CreateCone();
-	CreateCylinder();
-	CreateSphere();
+	//Hier kann nun der Aufruf gemacht werden um die Geometrie mit neuem Tesselierungsfaktor zu erzeugen
+	//CreateCone(0.0f, 0.0f, -100.0f);
+	//CreateCube(-75.0f, 0.0f, 0.0f);
+	//CreateCylinder(0.0f, 125.0f, 0.0f);
+	CreateSphere(100.0f, 0.0f, 0.0f);
+
+	RenderScene();
 }
 
 //Get Funktion für GUI, damit GUI Variablen Wert zum anzeigen erhält
@@ -114,8 +121,8 @@ void TW_CALL GetTesselation(void *value, void *clientData)
 	unsigned int* uintptr = static_cast<unsigned int*>(value);
 
 	//Variablen Wert and GUI weiterreichen
-	*uintptr = tesselation;
-}*/
+	*uintptr = tess;
+}
 
 
 //GUI
@@ -131,10 +138,8 @@ void InitGUI() {
 	//Scale Faktor als unsigned 32 bit integer definiert
 	TwAddVarCB(bar, "Groesse", TW_TYPE_UINT32, SetScale, GetScale, NULL, "");
 
-
-
 	//Tesselation Faktor als unsigned 32 bit integer definiert
-	//TwAddVarCB(bar, "Tesselation", TW_TYPE_UINT32, SetTesselation, GetTesselation, NULL, "");
+	TwAddVarCB(bar, "Tess.stufe", TW_TYPE_UINT32, SetTesselation, GetTesselation, NULL, "");
 
 	//Hier weitere GUI Variablen anlegen. Für Farbe z.B. den Typ TW_TYPE_COLOR4F benutzen
 }
@@ -142,8 +147,8 @@ void InitGUI() {
 void CreateCone(float xShift, float yShift, float zShift) {
 
 	//18 Vertices anlegen
-	M3DVector3f konusVertices[arraySize];
-	M3DVector4f konusColors[arraySize];
+	M3DVector3f* konusVertices = new M3DVector3f[arraySize];
+	M3DVector4f* konusColors = new M3DVector4f[arraySize];
 
 	float radius = 50.0f * scale;
 	float height = 75.0f * scale;
@@ -182,11 +187,14 @@ void CreateCone(float xShift, float yShift, float zShift) {
 	konus.CopyColorData4f(konusColors);
 	konus.End();
 
+	delete[] konusVertices;
+	delete[] konusColors;
+
 
 
 	// Erzeuge einen weiteren Triangle_Fan um den Boden zu bedecken
-	M3DVector3f bodenVertices[arraySize];
-	M3DVector4f bodenColors[arraySize];
+	M3DVector3f* bodenVertices = new M3DVector3f[arraySize];
+	M3DVector4f* bodenColors = new M3DVector4f[arraySize];
 	// Das Zentrum des Triangle_Fans ist im Ursprung
 	m3dLoadVector3(bodenVertices[0], 0, 0, zShift);
 	m3dLoadVector4(bodenColors[0], 1, 0, 0, 1);
@@ -215,6 +223,9 @@ void CreateCone(float xShift, float yShift, float zShift) {
 	kboden.CopyVertexData3f(bodenVertices);
 	kboden.CopyColorData4f(bodenColors);
 	kboden.End();
+
+	delete[] bodenVertices;
+	delete[] bodenColors;
 }
 
 void CreateCube(float xShift, float yShift, float zShift) {
@@ -279,12 +290,13 @@ void CreateCylinder(float xShift, float yShift, float zShift) {
 	float radius = 50.0f * scale;
 	int i = 1;
 
-	M3DVector3f fussVertices[arraySize];
-	M3DVector4f fussColors[arraySize];
-	M3DVector3f kopfVertices[arraySize];
-	M3DVector4f kopfColors[arraySize];
-	M3DVector3f planeVertices[doubleArraySize];
-	M3DVector4f planeColors[doubleArraySize];
+	M3DVector3f* fussVertices = new M3DVector3f[arraySize];
+	M3DVector3f* kopfVertices = new M3DVector3f[arraySize];
+	M3DVector3f* planeVertices = new M3DVector3f[doubleArraySize];
+
+	M3DVector4f* fussColors = new M3DVector4f[arraySize];
+	M3DVector4f* kopfColors = new M3DVector4f[arraySize];
+	M3DVector4f* planeColors = new M3DVector4f[doubleArraySize];
 
 	m3dLoadVector3(fussVertices[0], xShift, -radius + yShift, zShift);
 	m3dLoadVector3(kopfVertices[0], xShift, radius + yShift, zShift);
@@ -325,6 +337,13 @@ void CreateCylinder(float xShift, float yShift, float zShift) {
 	fuss.End();
 	kopf.End();
 	plane.End();
+
+	delete[] fussVertices;
+	delete[] fussColors;
+	delete[] kopfVertices;
+	delete[] kopfColors;
+	delete[] planeVertices;
+	delete[] planeColors;
 }
 
 void CreateSphere(float xShift, float yShift, float zShift) {
@@ -333,8 +352,8 @@ void CreateSphere(float xShift, float yShift, float zShift) {
 	float diameter = radius * 2;
 	GLfloat x, z;
 
-	M3DVector3f bodyVertices[sphereArraySize];
-	M3DVector4f bodyColors[sphereArraySize];
+	M3DVector3f* bodyVertices = new M3DVector3f[sphereArraySize * 2];
+	M3DVector4f* bodyColors = new M3DVector4f[sphereArraySize * 2];
 
 	m3dLoadVector3(bodyVertices[0], xShift, radius - diameter/tesselation + yShift, zShift);
 	m3dLoadVector3(bodyVertices[1], 0.0f + xShift, radius - 2*diameter/tesselation + yShift, zShift);
@@ -379,10 +398,14 @@ void CreateSphere(float xShift, float yShift, float zShift) {
 		colorIndex++;
 	}
 
+	sphereBody.Reset();
 	sphereBody.Begin(GL_TRIANGLE_STRIP, sphereArraySize);
 	sphereBody.CopyVertexData3f(bodyVertices);
 	sphereBody.CopyColorData4f(bodyColors);
 	sphereBody.End();
+
+	delete[] bodyVertices;
+	delete[] bodyColors;
 }
 
 void DrawCone() {
@@ -444,9 +467,9 @@ void RenderScene(void) {
 	//setze den Shader für das Rendern
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
 	//Zeichne
-	DrawCone();
+	/*DrawCone();
 	DrawCube();
-	DrawCylinder();
+	DrawCylinder();*/
 	DrawSphere();
 
 	// Hole die im Stack gespeicherten Transformationsmatrizen wieder zurück
@@ -471,9 +494,9 @@ void SetupRC() {
 	transformPipeline.SetMatrixStacks(modelViewMatrix, projectionMatrix);
 
 	//erzeuge die geometrie
-	CreateCone(0.0f, 0.0f, -100.0f);
+	/*CreateCone(0.0f, 0.0f, -100.0f);
 	CreateCube(-75.0f, 0.0f, 0.0f);
-	CreateCylinder(0.0f, 125.0f, 0.0f);
+	CreateCylinder(0.0f, 125.0f, 0.0f);*/
 	CreateSphere(100.0f, 0.0f, 0.0f);
 
 	InitGUI();
