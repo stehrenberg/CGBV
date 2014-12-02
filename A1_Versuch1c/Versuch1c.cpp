@@ -74,9 +74,9 @@ void TW_CALL SetScale(const void *value, void *clientData)
 	scale = *uintptr;
 
 	//Hier kann nun der Aufruf gemacht werden um die Geometrie mit neuem Scalefaktor zu erzeugen
-	/*CreateCone(0.0f, 0.0f, -100.0f);
+	//CreateCone(0.0f, 0.0f, -100.0f);
 	CreateCube(-75.0f, 0.0f, 0.0f);
-	CreateCylinder(0.0f, 125.0f, 0.0f);*/
+	CreateCylinder(0.0f, 125.0f, 0.0f);
 	CreateSphere(100.0f, 0.0f, 0.0f);
 
 	RenderScene();
@@ -107,8 +107,8 @@ void TW_CALL SetTesselation(const void *value, void *clientData)
 
 	//Hier kann nun der Aufruf gemacht werden um die Geometrie mit neuem Tesselierungsfaktor zu erzeugen
 	//CreateCone(0.0f, 0.0f, -100.0f);
-	//CreateCube(-75.0f, 0.0f, 0.0f);
-	//CreateCylinder(0.0f, 125.0f, 0.0f);
+	CreateCube(-75.0f, 0.0f, 0.0f);
+	CreateCylinder(0.0f, 125.0f, 0.0f);
 	CreateSphere(100.0f, 0.0f, 0.0f);
 
 	RenderScene();
@@ -147,8 +147,8 @@ void InitGUI() {
 void CreateCone(float xShift, float yShift, float zShift) {
 
 	//18 Vertices anlegen
-	M3DVector3f* konusVertices = new M3DVector3f[arraySize];
-	M3DVector4f* konusColors = new M3DVector4f[arraySize];
+	M3DVector3f* konusVertices = new M3DVector3f[18];
+	M3DVector4f* konusColors = new M3DVector4f[18];
 
 	float radius = 50.0f * scale;
 	float height = 75.0f * scale;
@@ -162,7 +162,7 @@ void CreateCone(float xShift, float yShift, float zShift) {
 	// um einen Triangle_Fan zu erzeugen
 	int iPivot = 1;
 	int i = 1;
-	for (float angle = 0.0f; angle < (2.0f*GL_PI); angle += (GL_PI / tesselation))
+	for (float angle = 0.0f; angle < (2.0f*GL_PI); angle += (GL_PI / 8))
 	{
 		// Berechne x und y Positionen des naechsten Vertex
 		float x = radius*cos(angle);
@@ -182,7 +182,7 @@ void CreateCone(float xShift, float yShift, float zShift) {
 		i++;
 	}
 
-	konus.Begin(GL_TRIANGLE_FAN, arraySize);
+	konus.Begin(GL_TRIANGLE_FAN, 18);
 	konus.CopyVertexData3f(konusVertices);
 	konus.CopyColorData4f(konusColors);
 	konus.End();
@@ -193,14 +193,14 @@ void CreateCone(float xShift, float yShift, float zShift) {
 
 
 	// Erzeuge einen weiteren Triangle_Fan um den Boden zu bedecken
-	M3DVector3f* bodenVertices = new M3DVector3f[arraySize];
-	M3DVector4f* bodenColors = new M3DVector4f[arraySize];
+	M3DVector3f* bodenVertices = new M3DVector3f[18];
+	M3DVector4f* bodenColors = new M3DVector4f[18];
 	// Das Zentrum des Triangle_Fans ist im Ursprung
 	m3dLoadVector3(bodenVertices[0], 0, 0, zShift);
 	m3dLoadVector4(bodenColors[0], 1, 0, 0, 1);
 
 	i = 1;
-	for (float angle = 0.0f; angle < (2.0f*GL_PI); angle += (GL_PI / tesselation)) {
+	for (float angle = 0.0f; angle < (2.0f*GL_PI); angle += (GL_PI / 8)) {
 		// Berechne x und y Positionen des naechsten Vertex
 		float x = radius*sin(angle);
 		float z = radius*cos(angle);
@@ -219,7 +219,7 @@ void CreateCone(float xShift, float yShift, float zShift) {
 		i++;
 	}
 
-	kboden.Begin(GL_TRIANGLE_FAN, arraySize);
+	kboden.Begin(GL_TRIANGLE_FAN, 18);
 	kboden.CopyVertexData3f(bodenVertices);
 	kboden.CopyColorData4f(bodenColors);
 	kboden.End();
@@ -467,9 +467,9 @@ void RenderScene(void) {
 	//setze den Shader für das Rendern
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
 	//Zeichne
-	/*DrawCone();
+	//DrawCone();
 	DrawCube();
-	DrawCylinder();*/
+	DrawCylinder();
 	DrawSphere();
 
 	// Hole die im Stack gespeicherten Transformationsmatrizen wieder zurück
@@ -494,9 +494,9 @@ void SetupRC() {
 	transformPipeline.SetMatrixStacks(modelViewMatrix, projectionMatrix);
 
 	//erzeuge die geometrie
-	/*CreateCone(0.0f, 0.0f, -100.0f);
+	//CreateCone(0.0f, 0.0f, -100.0f);
 	CreateCube(-75.0f, 0.0f, 0.0f);
-	CreateCylinder(0.0f, 125.0f, 0.0f);*/
+	CreateCylinder(0.0f, 125.0f, 0.0f);
 	CreateSphere(100.0f, 0.0f, 0.0f);
 
 	InitGUI();
