@@ -445,17 +445,17 @@ void DrawMaennchen() {
 	modelViewMatrix.Translate(0.0f, 55.0f, 0.0f);
 	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Scale(0.25, 0.15, 0.25);
-	modelViewMatrix.PopMatrix();
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
 	DrawCylinder();
+	modelViewMatrix.PopMatrix();
 
 	// Rumpf zeichnen
-	modelViewMatrix.Translate(0.0f, 50.0f, 0.0f);
+	modelViewMatrix.Translate(0.0f, -50.0f, 0.0f);
 	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Scale(0.9, 1.0, 0.7);
-	modelViewMatrix.PopMatrix();
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
 	DrawCylinder();
+	modelViewMatrix.PopMatrix();
 	modelViewMatrix.PopMatrix();
 	
 
