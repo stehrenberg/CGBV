@@ -32,7 +32,7 @@ GLBatch plane;
 GLBatch sphereBody;
 
 // Definition der Kreiszahl 
-#define GL_PI 3.1415f
+#define GL_PI 3.142f
 
 // Rotationsgroessen
 static float rotation[] = { 0, 0, 0, 0 };
@@ -59,6 +59,8 @@ void DrawMaennchen();
 void DrawLimbs();
 void DrawUpperLimb();
 void DrawLowerLimb();
+
+M3DVector4f blue = {0.0, 0.0, 1.0, 1.0};
 
 //Set Funktion für GUI, wird aufgerufen wenn Variable im GUI geändert wird
 void TW_CALL SetScale(const void *value, void *clientData)
@@ -389,7 +391,7 @@ void CreateSphere(float xShift, float yShift, float zShift) {
 			//	m3dLoadVector4(bodyColors[2 * i + 1], 0.235f, 0.235f, 0.235f, 1.0f);
 			//}
 
-			
+			// fuer Maennchen einkommentieren :)
 			m3dLoadVector4(bodyColors[2 * i], 0.91f, 0.70f, 0.54f, 1.0f);
 			m3dLoadVector4(bodyColors[2 * i + 1], 0.91f, 0.70f, 0.54f, 1.0f);
 			i++;
@@ -441,18 +443,21 @@ void DrawMaennchen() {
 	// Hals
 	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Translate(0.0f, 55.0f, 0.0f);
+	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Scale(0.25, 0.15, 0.25);
+	modelViewMatrix.PopMatrix();
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
 	DrawCylinder();
-	modelViewMatrix.PopMatrix();
 
 	// Rumpf zeichnen
+	modelViewMatrix.Translate(0.0f, 50.0f, 0.0f);
 	modelViewMatrix.PushMatrix();
-	modelViewMatrix.Translate(0.0f, 0.0f, 0.0f);
 	modelViewMatrix.Scale(0.9, 1.0, 0.7);
+	modelViewMatrix.PopMatrix();
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
 	DrawCylinder();
 	modelViewMatrix.PopMatrix();
+	
 
 	// Giedmaßen zeichnen
 	DrawLimbs();
@@ -585,7 +590,6 @@ void RenderScene(void) {
 	//setze den Shader für das Rendern
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
 	//Zeichne
-	//DrawCone();
 	//DrawCube();
 	//DrawCylinder();
 	//DrawSphere();
@@ -613,7 +617,6 @@ void SetupRC() {
 	transformPipeline.SetMatrixStacks(modelViewMatrix, projectionMatrix);
 
 	//erzeuge die geometrie
-	//CreateCone(0.0f, 0.0f, -100.0f);
 
 	// fuer Praesentation einkommentieren :)
 	//CreateCube(-75.0f, 0.0f, 0.0f);
