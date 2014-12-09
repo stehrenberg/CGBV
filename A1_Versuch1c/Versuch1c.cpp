@@ -478,70 +478,86 @@ void DrawUpperLimb() {
 	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Translate(60.0f, 10.0f, 0.0f);
 	modelViewMatrix.Rotate(30.0, 0.0, 0.0, 1.0);
+	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Scale(0.2, 0.75, 0.2);
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
-	DrawCylinder();
 	modelViewMatrix.PopMatrix();
+	DrawCylinder();
 
 	// rechte Hand
 	modelViewMatrix.PushMatrix();
-	modelViewMatrix.Translate(79.0f, -22.0f, 0.0f);
+	modelViewMatrix.Translate(0.0f, -40.0f, 0.0f);
+	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Scale(0.2, 0.2, 0.2);
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
+	modelViewMatrix.PopMatrix();
 	DrawSphere();
+	modelViewMatrix.PopMatrix();
 	modelViewMatrix.PopMatrix();
 
 	// linkes Bein
 	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Translate(-20.0f, -80.0f, 0.0f);
 	modelViewMatrix.Rotate(-8.0, 1.0, 0.0, 0.0);
+	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Scale(0.3, 0.8, 0.3);
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
-	DrawCylinder();
 	modelViewMatrix.PopMatrix();
+	DrawCylinder();
 
 	// linker Fuss
 	modelViewMatrix.PushMatrix();
-	modelViewMatrix.Translate(-20.0f, -125.0f, 12.0f);
-	modelViewMatrix.Rotate(-8.0, 1.0, 0.0, 0.0);
+	modelViewMatrix.Translate(0.0f, -47.0f, 10.0f);
+	modelViewMatrix.Rotate(0.0, 1.0, 0.0, 0.0);
+	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Scale(0.5, 0.3, 0.9);
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
+	modelViewMatrix.PopMatrix();
 	DrawCube();
+	modelViewMatrix.PopMatrix();
 	modelViewMatrix.PopMatrix();
 
 	// linker Arm
 	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Translate(-60.0f, 10.0f, 0.0f);
 	modelViewMatrix.Rotate(-30.0, 0.0, 0.0, 1.0);
+	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Scale(0.2, 0.75, 0.2);
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
-	DrawCylinder();
 	modelViewMatrix.PopMatrix();
+	DrawCylinder();
 
 	// linke Hand
 	modelViewMatrix.PushMatrix();
-	modelViewMatrix.Translate(-79.0f, -22.0f, 0.0f);
+	modelViewMatrix.Translate(0.0f, -40.0f, 0.0f);
+	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Scale(0.2, 0.2, 0.2);
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
+	modelViewMatrix.PopMatrix();
 	DrawSphere();
+	modelViewMatrix.PopMatrix();
 	modelViewMatrix.PopMatrix();
 
 	// rechtes Bein
 	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Translate(20.0f, -80.0f, 0.0f);
 	modelViewMatrix.Rotate(8.0, 1.0, 0.0, 0.0);
+	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Scale(0.3, 0.8, 0.3);
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
-	DrawCylinder();
 	modelViewMatrix.PopMatrix();
+	DrawCylinder();
 
 	// rechter Fuss
 	modelViewMatrix.PushMatrix();
-	modelViewMatrix.Translate(20.0f, -128.0f, 0.0f);
-	modelViewMatrix.Rotate(8.0, 1.0, 0.0, 0.0);
+	modelViewMatrix.Translate(0.0f, -47.0f, 10.0f);
+	modelViewMatrix.Rotate(0.0, 1.0, 0.0, 0.0);
+	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Scale(0.5, 0.3, 0.9);
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
+	modelViewMatrix.PopMatrix();
 	DrawCube();
+	modelViewMatrix.PopMatrix();
 	modelViewMatrix.PopMatrix();
 	
 
