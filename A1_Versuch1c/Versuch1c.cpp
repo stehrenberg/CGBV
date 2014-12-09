@@ -432,13 +432,14 @@ void DrawSphere() {
 
 void DrawMaennchen() {
 
-	// Kopf
+	// Rumpf zeichnen
 	modelViewMatrix.PushMatrix();
-	modelViewMatrix.Translate(0.0f, 95.0f, 0.0f);
-	modelViewMatrix.Scale(0.72, 0.72, 0.72);
+	modelViewMatrix.Translate(0.0f, 0.0f, 0.0f);
+	modelViewMatrix.PushMatrix();
+	modelViewMatrix.Scale(0.9, 1.0, 0.7);
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
-	DrawSphere();
 	modelViewMatrix.PopMatrix();
+	DrawCylinder();
 
 	// Hals
 	modelViewMatrix.PushMatrix();
@@ -446,21 +447,22 @@ void DrawMaennchen() {
 	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Scale(0.25, 0.15, 0.25);
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
-	DrawCylinder();
 	modelViewMatrix.PopMatrix();
-
-	// Rumpf zeichnen
-	modelViewMatrix.Translate(0.0f, -50.0f, 0.0f);
-	modelViewMatrix.PushMatrix();
-	modelViewMatrix.Scale(0.9, 1.0, 0.7);
-	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
 	DrawCylinder();
+
+	// Kopf
+	modelViewMatrix.PushMatrix();
+	modelViewMatrix.Translate(0.0f, 40.0f, 0.0f);
+	modelViewMatrix.Scale(0.72, 0.72, 0.72);
+	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
+	DrawSphere();
 	modelViewMatrix.PopMatrix();
 	modelViewMatrix.PopMatrix();
 	
-
-	// Giedmaﬂen zeichnen
+	// Giedmaﬂen zeichnen - abhaengig vom Rumpf!
 	DrawLimbs();
+
+	modelViewMatrix.PopMatrix();
 }
 
 void DrawLimbs() {
