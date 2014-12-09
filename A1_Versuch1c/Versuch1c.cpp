@@ -53,12 +53,15 @@ bool bOutline = false;
 bool bDepth = true;
 unsigned int scale = 1;
 unsigned int tess = 5;
+bool bPerspectiveProj = false;
 
 unsigned int tesselation = pow(2, tess);
 unsigned int arraySize = 2 * tesselation + 2;
 unsigned int doubleArraySize = 2 * arraySize;
 unsigned int sphereArraySize = (tesselation*(arraySize - 1) + 1) * 2;
 double animationAngle = 0;
+int windowWidth = 800;
+int windowHeight = 600;
 
 //Prototypen
 void CreateCone(float, float, float);
@@ -70,6 +73,7 @@ void DrawMaennchen(float angle);
 void DrawLimbs(float angle);
 void DrawUpperLimb(float angle);
 void DrawLowerLimb(float angle);
+void ChangeSize(int w, int h);
 
 M3DVector4f blue = {0.0, 0.0, 1.0, 1.0};
 
@@ -134,6 +138,33 @@ void TW_CALL GetTesselation(void *value, void *clientData)
 }
 
 
+
+//Set Funktion für GUI, wird aufgerufen wenn Variable im GUI geändert wird
+void TW_CALL SetProjection(const void *value, void *clientData)
+{
+
+	std::cerr << "hallo" << std::endl;
+
+	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
+	const bool* boolptr = static_cast<const bool*>(value);
+
+	//Setzen der Variable auf neuen Wert
+	bPerspectiveProj = *boolptr;
+	
+	// Neuaufruf zum Rendern des Bildes
+	ChangeSize(windowWidth, windowHeight);
+}
+
+//Get Funktion für GUI, damit GUI Variablen Wert zum anzeigen erhält
+void TW_CALL GetProjection(void *value, void *clientData)
+{
+	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
+	bool* boolptr = static_cast<bool*>(value);
+
+	//Variablen Wert and GUI weiterreichen
+	*boolptr = bPerspectiveProj;
+}
+
 //GUI
 TwBar *bar;
 void InitGUI() {
@@ -143,6 +174,8 @@ void InitGUI() {
 	TwAddVarRW(bar, "Depth Test?", TW_TYPE_BOOLCPP, &bDepth, "");
 	TwAddVarRW(bar, "Culling?", TW_TYPE_BOOLCPP, &bCull, "");
 	TwAddVarRW(bar, "Backface Wireframe?", TW_TYPE_BOOLCPP, &bOutline, "");
+
+	TwAddVarCB(bar, "Perspective Projection?", TW_TYPE_BOOLCPP, SetProjection, GetProjection, NULL, "");
 
 	//Scale Faktor als unsigned 32 bit integer definiert
 	TwAddVarCB(bar, "Groesse", TW_TYPE_UINT32, SetScale, GetScale, NULL, "");
@@ -706,6 +739,10 @@ void RenderScene(void) {
 	//setze den Shader für das Rendern
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
 	
+	// Augenpunktstransformation fuer perspektivische Projektion
+	if (bPerspectiveProj)
+		modelViewMatrix.Translate(0.0f, 0.0f, -1000.0f);
+
 	//Zeichne Objekte
 	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Translate(0, -110, 0);
@@ -751,6 +788,8 @@ void SpecialKeys(int key, int x, int y) {
 
 void ChangeSize(int w, int h) {
 	GLfloat nRange = 250.0f;
+	windowWidth = w;
+	windowHeight = h;
 
 	// Verhindere eine Division durch Null
 	if (h == 0) {
@@ -761,12 +800,24 @@ void ChangeSize(int w, int h) {
 	// Ruecksetzung des Projection matrix stack
 	projectionMatrix.LoadIdentity();
 
-	// Definiere das viewing volume (left, right, bottom, top, near, far)
-	if (w <= h) {
-		viewFrustum.SetOrthographic(-nRange, nRange, -nRange*h / w, nRange*h / w, -nRange, nRange);
+	if (bPerspectiveProj) {
+		// Definiere das viewing volume (left, right, bottom, top, near, far)
+		if (w <= h) {
+			viewFrustum.SetPerspective(30.0f, h/w, 0.1, 1000);
+		}
+		else {
+			viewFrustum.SetPerspective(30.0f, w / h, 0.1, 1000);
+		}
 	}
+
 	else {
-		viewFrustum.SetOrthographic(-nRange*w / h, nRange*w / h, -nRange, nRange, -nRange, nRange);
+		// Definiere das viewing volume (left, right, bottom, top, near, far)
+		if (w <= h) {
+			viewFrustum.SetOrthographic(-nRange, nRange, -nRange*h / w, nRange*h / w, -nRange, nRange);
+		}
+		else {
+			viewFrustum.SetOrthographic(-nRange*w / h, nRange*w / h, -nRange, nRange, -nRange, nRange);
+		}
 	}
 
 	projectionMatrix.LoadMatrix(viewFrustum.GetProjectionMatrix());
@@ -783,7 +834,7 @@ void ShutDownRC() {
 int main(int argc, char* argv[]) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutInitWindowSize(800, 600);
+	glutInitWindowSize(windowWidth, windowHeight);
 	glutCreateWindow("Versuch1");
 
 	GLenum err = glewInit();
