@@ -441,6 +441,54 @@ void DrawSphere() {
 	sphereBody.Draw();
 }
 
+void DrawBaeumchen() {
+
+	// Boden
+	modelViewMatrix.PushMatrix();
+	modelViewMatrix.PushMatrix();
+	modelViewMatrix.Translate(0, -25, 0);
+	modelViewMatrix.Scale(20, -0.01, 20);
+	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
+	modelViewMatrix.PopMatrix();
+	DrawCube();
+
+	// Baumstamm
+	modelViewMatrix.PushMatrix();
+	modelViewMatrix.Translate(0, 0.0, 0);
+	modelViewMatrix.PushMatrix();
+	modelViewMatrix.Scale(0.3, 0.5, 0.3);
+	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
+	modelViewMatrix.PopMatrix();
+	DrawCylinder();
+
+	//unterster Kegel
+	modelViewMatrix.PushMatrix();
+	modelViewMatrix.Translate(0, 25.0, 0);
+	modelViewMatrix.Scale(1.5, 1.5, 1.5);
+	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
+	DrawCone();
+
+	// mittlerer Kegel
+	modelViewMatrix.PushMatrix();
+	modelViewMatrix.Translate(0, 40.0, 0);
+	modelViewMatrix.Scale(0.75, 0.75, 0.75);
+	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
+	DrawCone();	
+	
+	// Spitze
+	modelViewMatrix.PushMatrix();
+	modelViewMatrix.Translate(0, 50.0, 0);
+	modelViewMatrix.Scale(0.75, 0.75, 0.75);
+	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
+	DrawCone();
+
+	modelViewMatrix.PopMatrix();
+	modelViewMatrix.PopMatrix();
+	modelViewMatrix.PopMatrix();
+	modelViewMatrix.PopMatrix();
+	modelViewMatrix.PopMatrix();
+}
+
 void DrawMaennchen(float angle) {
 
 	//float overallScaleFactor = 0.2 * cos(GL_PI / 200 * angle) + 1;
@@ -450,9 +498,9 @@ void DrawMaennchen(float angle) {
 	* Rumpf zeichnen
 	**/
 	modelViewMatrix.PushMatrix();
-	modelViewMatrix.Rotate(-angle, 0, 1, 0);
+	modelViewMatrix.Rotate(angle, 0, -1, 0);
 	// generelle Verschiebung aus dem Mittelpunkt heraus
-	modelViewMatrix.Translate(100.0f, 0.0f, 0.0f);
+	modelViewMatrix.Translate(200.0f, 0.0f, 0.0f);
 	// Verschiebung fuer Huepfbahn
 	modelViewMatrix.Translate(0.0f, 30 * jumpFactor, 0);
 	//modelViewMatrix.Scale(overallScaleFactor, overallScaleFactor, overallScaleFactor);
@@ -657,14 +705,12 @@ void RenderScene(void) {
 
 	//setze den Shader für das Rendern
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
+	
 	//Zeichne Objekte
 	modelViewMatrix.PushMatrix();
-	modelViewMatrix.Translate(0.0f, -100.0f, 0.0f);
-	modelViewMatrix.Scale(0.2f, 1.0f, 0.2f);
-	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
-	DrawCylinder();
+	modelViewMatrix.Translate(0, -110, 0);
+	DrawBaeumchen();
 	modelViewMatrix.PopMatrix();
-
 	DrawMaennchen(animationAngle += GL_PI / 10);
 
 	// Hole die im Stack gespeicherten Transformationsmatrizen wieder zurück
@@ -689,13 +735,7 @@ void SetupRC() {
 	transformPipeline.SetMatrixStacks(modelViewMatrix, projectionMatrix);
 
 	//erzeuge die geometrie
-
-	// fuer Praesentation einkommentieren :)
-	//CreateCube(-75.0f, 0.0f, 0.0f);
-	//CreateCylinder(0.0f, 125.0f, 0.0f);
-	//CreateSphere(100.0f, 0.0f, 0.0f);
-
-	// fuer Maennchen einkommentieren :)
+	CreateCone(0, 0, 0);
 	CreateCube(0, 0, 0);
 	CreateCylinder(0, 0, 0);
 	CreateSphere(0, 0, 0);
