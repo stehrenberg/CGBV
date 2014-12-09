@@ -31,6 +31,16 @@ GLBatch fuss;
 GLBatch plane;
 GLBatch sphereBody;
 
+
+// Farbvektoren
+//M3DVector4f green = (1.0);
+//M3DVector4f lightgreen = (1.0);
+//M3DVector4f blue = { 0.0f, 0.6f, 1.0f, 1.0f };
+//M3DVector4f red = (1.0);
+//M3DVector4f yellow = (1.0);
+//M3DVector4f grey = {0.235f, 0.235f, 0.235f, 1.0f};
+//M3DVector4f skincolored = (1.0);
+
 // Definition der Kreiszahl 
 #define GL_PI 3.142f
 
@@ -48,6 +58,7 @@ unsigned int tesselation = pow(2, tess);
 unsigned int arraySize = 2 * tesselation + 2;
 unsigned int doubleArraySize = 2 * arraySize;
 unsigned int sphereArraySize = (tesselation*(arraySize - 1) + 1) * 2;
+double animationAngle = 0;
 
 //Prototypen
 void CreateCone(float, float, float);
@@ -55,10 +66,10 @@ void CreateCube(float, float, float);
 void CreateCylinder(float, float, float);
 void CreateSphere(float, float, float);
 void RenderScene();
-void DrawMaennchen();
-void DrawLimbs();
-void DrawUpperLimb();
-void DrawLowerLimb();
+void DrawMaennchen(float angle);
+void DrawLimbs(float angle);
+void DrawUpperLimb(float angle);
+void DrawLowerLimb(float angle);
 
 M3DVector4f blue = {0.0, 0.0, 1.0, 1.0};
 
@@ -430,11 +441,22 @@ void DrawSphere() {
 	sphereBody.Draw();
 }
 
-void DrawMaennchen() {
+void DrawMaennchen(float angle) {
 
-	// Rumpf zeichnen
+	//float overallScaleFactor = 0.2 * cos(GL_PI / 200 * angle) + 1;
+	float jumpFactor = abs(cos(GL_PI/10 * angle));
+
+	/**
+	* Rumpf zeichnen
+	**/
 	modelViewMatrix.PushMatrix();
-	modelViewMatrix.Translate(0.0f, 0.0f, 0.0f);
+	modelViewMatrix.Rotate(-angle, 0, 1, 0);
+	// generelle Verschiebung aus dem Mittelpunkt heraus
+	modelViewMatrix.Translate(100.0f, 0.0f, 0.0f);
+	// Verschiebung fuer Huepfbahn
+	modelViewMatrix.Translate(0.0f, 30 * jumpFactor, 0);
+	//modelViewMatrix.Scale(overallScaleFactor, overallScaleFactor, overallScaleFactor);
+
 	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Scale(0.9, 1.0, 0.7);
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
@@ -460,24 +482,31 @@ void DrawMaennchen() {
 	modelViewMatrix.PopMatrix();
 	
 	// Giedmaßen zeichnen - abhaengig vom Rumpf!
-	DrawLimbs();
+	DrawLimbs(angle);
 
 	modelViewMatrix.PopMatrix();
 }
 
-void DrawLimbs() {
+void DrawLimbs(float angle) {
 
 	// Oberes Glied
-	DrawUpperLimb();
+	DrawUpperLimb(angle);
 	// Unteres Glied
-	//DrawLowerLimb();
+	//DrawLowerLimb(angle);
 }
 
+void DrawUpperLimb(float angle) {
 
-void DrawUpperLimb() {
+	float movement = sin(GL_PI/8 * angle);
 
 	// rechten Arm
 	modelViewMatrix.PushMatrix();
+
+	//Schwingbewegung realisieren
+	modelViewMatrix.Translate(10.0, 55.0, 0);
+	modelViewMatrix.Rotate(movement * 35.0, 1.0, 0.0, 0.0);
+	modelViewMatrix.Translate(-10.0, -55.0, 0);
+
 	modelViewMatrix.Translate(60.0f, 10.0f, 0.0f);
 	modelViewMatrix.Rotate(30.0, 0.0, 0.0, 1.0);
 	modelViewMatrix.PushMatrix();
@@ -497,10 +526,17 @@ void DrawUpperLimb() {
 	modelViewMatrix.PopMatrix();
 	modelViewMatrix.PopMatrix();
 
-	// linkes Bein
+	/**
+	* linkes Bein
+	**/
 	modelViewMatrix.PushMatrix();
+
+	// Schwingbewegung
+	modelViewMatrix.Translate(0.0, -50.0, 0);
+	modelViewMatrix.Rotate(movement * 35.0, 1.0, 0.0, 0.0);
+	modelViewMatrix.Translate(0.0, 50.0, 0);
+
 	modelViewMatrix.Translate(-20.0f, -80.0f, 0.0f);
-	modelViewMatrix.Rotate(-8.0, 1.0, 0.0, 0.0);
 	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Scale(0.3, 0.8, 0.3);
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
@@ -510,7 +546,6 @@ void DrawUpperLimb() {
 	// linker Fuss
 	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Translate(0.0f, -47.0f, 10.0f);
-	modelViewMatrix.Rotate(0.0, 1.0, 0.0, 0.0);
 	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Scale(0.5, 0.3, 0.9);
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
@@ -519,8 +554,16 @@ void DrawUpperLimb() {
 	modelViewMatrix.PopMatrix();
 	modelViewMatrix.PopMatrix();
 
-	// linker Arm
+	/**
+	* linker Arm
+	**/
 	modelViewMatrix.PushMatrix();
+
+	// Schwingbewegung
+	modelViewMatrix.Translate(10.0, 55.0, 0);
+	modelViewMatrix.Rotate(-movement * 35.0, 1.0, 0.0, 0.0);
+	modelViewMatrix.Translate(-10.0, -55.0, 0);
+
 	modelViewMatrix.Translate(-60.0f, 10.0f, 0.0f);
 	modelViewMatrix.Rotate(-30.0, 0.0, 0.0, 1.0);
 	modelViewMatrix.PushMatrix();
@@ -540,8 +583,15 @@ void DrawUpperLimb() {
 	modelViewMatrix.PopMatrix();
 	modelViewMatrix.PopMatrix();
 
-	// rechtes Bein
+	/** rechtes Bein
+	*/
 	modelViewMatrix.PushMatrix();
+
+	// Schwingbewegung
+	modelViewMatrix.Translate(0.0, -50.0, 0);
+	modelViewMatrix.Rotate(-movement * 35.0, 1.0, 0.0, 0.0);
+	modelViewMatrix.Translate(0.0, 50.0, 0);
+
 	modelViewMatrix.Translate(20.0f, -80.0f, 0.0f);
 	modelViewMatrix.Rotate(8.0, 1.0, 0.0, 0.0);
 	modelViewMatrix.PushMatrix();
@@ -565,7 +615,7 @@ void DrawUpperLimb() {
 
 }
 
-void DrawLowerLimb() {
+void DrawLowerLimb(float angle) {
 
 }
 
@@ -607,11 +657,15 @@ void RenderScene(void) {
 
 	//setze den Shader für das Rendern
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
-	//Zeichne
-	//DrawCube();
-	//DrawCylinder();
-	//DrawSphere();
-	DrawMaennchen();
+	//Zeichne Objekte
+	modelViewMatrix.PushMatrix();
+	modelViewMatrix.Translate(0.0f, -100.0f, 0.0f);
+	modelViewMatrix.Scale(0.2f, 1.0f, 0.2f);
+	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
+	DrawCylinder();
+	modelViewMatrix.PopMatrix();
+
+	DrawMaennchen(animationAngle += GL_PI / 10);
 
 	// Hole die im Stack gespeicherten Transformationsmatrizen wieder zurück
 	modelViewMatrix.PopMatrix();
@@ -654,7 +708,6 @@ void SpecialKeys(int key, int x, int y) {
 	// Zeichne das Window neu
 	glutPostRedisplay();
 }
-
 
 void ChangeSize(int w, int h) {
 	GLfloat nRange = 250.0f;
