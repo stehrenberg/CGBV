@@ -560,8 +560,8 @@ void DrawMaennchen(float angle) {
 	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Scale(0.9, 1.0, 0.7);
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
-	modelViewMatrix.PopMatrix();
 	DrawCylinder();
+	modelViewMatrix.PopMatrix();
 
 	// Hals
 	modelViewMatrix.PushMatrix();
@@ -569,8 +569,8 @@ void DrawMaennchen(float angle) {
 	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Scale(0.25, 0.15, 0.25);
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
-	modelViewMatrix.PopMatrix();
 	DrawCylinder();
+	modelViewMatrix.PopMatrix();
 
 	// Kopf
 	modelViewMatrix.PushMatrix();
@@ -612,8 +612,8 @@ void DrawUpperLimb(float angle) {
 	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Scale(0.2, 0.75, 0.2);
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
-	modelViewMatrix.PopMatrix();
 	DrawCylinder();
+	modelViewMatrix.PopMatrix();
 
 	// rechte Hand
 	modelViewMatrix.PushMatrix();
@@ -621,8 +621,8 @@ void DrawUpperLimb(float angle) {
 	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Scale(0.2, 0.2, 0.2);
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
-	modelViewMatrix.PopMatrix();
 	DrawSphere();
+	modelViewMatrix.PopMatrix();
 	modelViewMatrix.PopMatrix();
 	modelViewMatrix.PopMatrix();
 
@@ -640,8 +640,8 @@ void DrawUpperLimb(float angle) {
 	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Scale(0.3, 0.8, 0.3);
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
-	modelViewMatrix.PopMatrix();
 	DrawCylinder();
+	modelViewMatrix.PopMatrix();
 
 	// linker Fuss
 	modelViewMatrix.PushMatrix();
@@ -649,8 +649,8 @@ void DrawUpperLimb(float angle) {
 	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Scale(0.5, 0.3, 0.9);
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
-	modelViewMatrix.PopMatrix();
 	DrawCube();
+	modelViewMatrix.PopMatrix();
 	modelViewMatrix.PopMatrix();
 	modelViewMatrix.PopMatrix();
 
@@ -669,8 +669,8 @@ void DrawUpperLimb(float angle) {
 	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Scale(0.2, 0.75, 0.2);
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
-	modelViewMatrix.PopMatrix();
 	DrawCylinder();
+	modelViewMatrix.PopMatrix();
 
 	// linke Hand
 	modelViewMatrix.PushMatrix();
@@ -678,8 +678,8 @@ void DrawUpperLimb(float angle) {
 	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Scale(0.2, 0.2, 0.2);
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
-	modelViewMatrix.PopMatrix();
 	DrawSphere();
+	modelViewMatrix.PopMatrix();
 	modelViewMatrix.PopMatrix();
 	modelViewMatrix.PopMatrix();
 
@@ -697,8 +697,8 @@ void DrawUpperLimb(float angle) {
 	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Scale(0.3, 0.8, 0.3);
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
-	modelViewMatrix.PopMatrix();
 	DrawCylinder();
+	modelViewMatrix.PopMatrix();
 
 	// rechter Fuss
 	modelViewMatrix.PushMatrix();
@@ -707,8 +707,8 @@ void DrawUpperLimb(float angle) {
 	modelViewMatrix.PushMatrix();
 	modelViewMatrix.Scale(0.5, 0.3, 0.9);
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
-	modelViewMatrix.PopMatrix();
 	DrawCube();
+	modelViewMatrix.PopMatrix();
 	modelViewMatrix.PopMatrix();
 	modelViewMatrix.PopMatrix();
 	
