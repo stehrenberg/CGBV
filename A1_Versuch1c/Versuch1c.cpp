@@ -212,9 +212,9 @@ void CreateCone(float xShift, float yShift, float zShift) {
 
 		// Alterniere die Farbe zwischen Rot und Gruen
 		if ((iPivot % 2) == 0)
-			m3dLoadVector4(konusColors[i], 0.235f, 0.235f, 0.235f, 1.0f);
+			m3dLoadVector4(konusColors[i],0.9f, 1.0f, 0.9f, 1.0f);
 		else
-			m3dLoadVector4(konusColors[i], 0.0f, 0.6f, 1.0f, 1.0f);
+			m3dLoadVector4(konusColors[i], 0.0f, 0.4f, 0.2f, 1.0f);
 
 		// Inkrementiere iPivot um die Farbe beim naechsten mal zu wechseln
 		iPivot++;
@@ -247,12 +247,7 @@ void CreateCone(float xShift, float yShift, float zShift) {
 		float x = radius*sin(angle);
 		float z = radius*cos(angle);
 
-		// Alterniere die Farbe zwischen Rot und Gruen
-		if ((iPivot % 2) == 0)
-			m3dLoadVector4(bodenColors[i], 1.0f, 0.8f, 0.2f, 1.0f);
-		else
-			m3dLoadVector4(konusColors[i], 0.235f, 0.235f, 0.235f, 1.0f);
-
+		m3dLoadVector4(bodenColors[i], 0.0f, 0.2f, 0.0f, 1.0f);
 		// Inkrementiere iPivot um die Farbe beim naechsten mal zu wechseln
 		iPivot++;
 
