@@ -65,7 +65,8 @@ unsigned int arraySize = 2 * tesselation + 2;
 unsigned int doubleArraySize = 2 * arraySize;
 unsigned int sphereArraySize = (tesselation*(arraySize - 1) + 1) * 2;
 double animationAngle = 0;
-float viewAngle = 0.0f;
+float viewAngleX = 0.0f;
+float viewAngleY = 0.0f;
 int windowWidth = 800;
 int windowHeight = 600;
 
@@ -761,14 +762,15 @@ void RenderScene(void) {
 	// zusaetzliche Transformationen bei persp. Projektion
 	if (bPerspectiveProj) {
 
-		// Augenpunktstransformation
-		modelViewMatrix.Translate(0.0f, 0.0f, -1000.0f);
-
 		// Vektor fuer UFO-Bewegungsmodus draufrechnen
 		modelViewMatrix.Translate(ufoMove[0], ufoMove[1], ufoMove[2]);
 
 		// Vektor fuer Drehungen um x- oder y-Achse draufrechnen
-		modelViewMatrix.Rotate(viewAngle, ufoTurning[0], ufoTurning[1], ufoTurning[2] );
+		modelViewMatrix.Rotate(viewAngleX, 0.0f, 1.0f, 0.0f );
+		modelViewMatrix.Rotate(viewAngleY, 1.0f, 0.0f, 0.0f);
+
+		// Augenpunktstransformation
+		modelViewMatrix.Translate(0.0f, 0.0f, -1000.0f);
 	}
 
 
@@ -862,25 +864,16 @@ void Keyboard(unsigned char key, int x, int y) {
 	
 	switch (key) {
 		case 'w':
-			std::cerr << "bla" << std::endl;
-			viewAngle += yStep;
-			ufoTurning[0] = 1.0;
-			ufoTurning[1] = 0.0;
+			viewAngleY += yStep;
 			break;
 		case 's':
-			viewAngle -= yStep;
-			ufoTurning[0] = 1.0;
-			ufoTurning[1] = 0.0;
+			viewAngleY -= yStep;
 			break;
 		case 'a':
-			viewAngle += xStep;
-			ufoTurning[1] = 1.0;
-			ufoTurning[0] = 0.0;
+			viewAngleX -= xStep;
 			break;
 		case 'd':
-			viewAngle -= xStep;
-			ufoTurning[1] = 1.0;
-			ufoTurning[0] = 0.0;
+			viewAngleX += xStep;
 			break;
 	}
 
