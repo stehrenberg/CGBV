@@ -47,8 +47,9 @@ GLBatch sphereBody;
 // Rotationsgroessen
 static float rotation[] = { 0, 0, 0, 0 };
 
-// Vektor fuer UFO-Bewegungsmodus ueber Pfeiltasten
+// Vektor fuer UFO-Bewegungsmodus
 M3DVector3f ufoMove = { 0.0f, 0.0f, 0.0f};
+M3DVector3f ufoTurning = { 0.0f, 0.0f, 0.0f };
 
 // Flags fuer Schalter
 bool bCull = false;
@@ -64,6 +65,7 @@ unsigned int arraySize = 2 * tesselation + 2;
 unsigned int doubleArraySize = 2 * arraySize;
 unsigned int sphereArraySize = (tesselation*(arraySize - 1) + 1) * 2;
 double animationAngle = 0;
+float viewAngle = 0.0f;
 int windowWidth = 800;
 int windowHeight = 600;
 
@@ -764,6 +766,9 @@ void RenderScene(void) {
 
 		// Vektor fuer UFO-Bewegungsmodus draufrechnen
 		modelViewMatrix.Translate(ufoMove[0], ufoMove[1], ufoMove[2]);
+
+		// Vektor fuer Drehungen um x- oder y-Achse draufrechnen
+		modelViewMatrix.Rotate(viewAngle, ufoTurning[0], ufoTurning[1], ufoTurning[2] );
 	}
 
 
@@ -821,24 +826,64 @@ void SpecialKeys(int key, int x, int y) {
 	switch (key) {
 		case GLUT_KEY_LEFT:
 			ufoMove[0] += xStep;
-			glutPostRedisplay();
+			//glutPostRedisplay();
 			break;
 		case GLUT_KEY_RIGHT:
 			ufoMove[0] -= xStep;
-			glutPostRedisplay();
+			//glutPostRedisplay();
 			break;
 		case GLUT_KEY_UP:
 			ufoMove[2] += zStep;
-			glutPostRedisplay();
+			//glutPostRedisplay();
 			break;
 		case GLUT_KEY_DOWN:
 			ufoMove[2] -= zStep;
-			glutPostRedisplay();
+			//glutPostRedisplay();
+			break;
+		case GLUT_KEY_PAGE_UP:
+			ufoMove[1] += yStep;
+			break;
+		case GLUT_KEY_PAGE_DOWN:
+			ufoMove[1] -= yStep;
 			break;
 	}
 
 	TwEventKeyboardGLUT(key, x, y);
-	// Zeichne das Window neu
+	glutPostRedisplay();
+}
+
+void Keyboard(unsigned char key, int x, int y) {
+
+	float xStep = 5.0f;
+	float yStep = 5.0f;
+
+	if (bVertAxisInverted)
+		yStep = -5.0f;
+	
+	switch (key) {
+		case 'w':
+			std::cerr << "bla" << std::endl;
+			viewAngle += yStep;
+			ufoTurning[0] = 1.0;
+			ufoTurning[1] = 0.0;
+			break;
+		case 's':
+			viewAngle -= yStep;
+			ufoTurning[0] = 1.0;
+			ufoTurning[1] = 0.0;
+			break;
+		case 'a':
+			viewAngle += xStep;
+			ufoTurning[1] = 1.0;
+			ufoTurning[0] = 0.0;
+			break;
+		case 'd':
+			viewAngle -= xStep;
+			ufoTurning[1] = 1.0;
+			ufoTurning[0] = 0.0;
+			break;
+	}
+
 	glutPostRedisplay();
 }
 
@@ -904,7 +949,7 @@ int main(int argc, char* argv[]) {
 	glutMouseFunc((GLUTmousebuttonfun)TwEventMouseButtonGLUT);
 	glutMotionFunc((GLUTmousemotionfun)TwEventMouseMotionGLUT);
 	glutPassiveMotionFunc((GLUTmousemotionfun)TwEventMouseMotionGLUT); // same as MouseMotion
-	glutKeyboardFunc((GLUTkeyboardfun)TwEventKeyboardGLUT);
+	glutKeyboardFunc(Keyboard);
 
 	glutReshapeFunc(ChangeSize);
 	glutSpecialFunc(SpecialKeys);
