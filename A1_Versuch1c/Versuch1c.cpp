@@ -864,10 +864,10 @@ void Keyboard(unsigned char key, int x, int y) {
 	
 	switch (key) {
 		case 'w':
-			viewAngleY += yStep;
+			viewAngleY -= yStep;
 			break;
 		case 's':
-			viewAngleY -= yStep;
+			viewAngleY += yStep;
 			break;
 		case 'a':
 			viewAngleX -= xStep;
@@ -882,7 +882,7 @@ void Keyboard(unsigned char key, int x, int y) {
 
 void ChangeSize(int w, int h) {
 
-	GLfloat nRange = 250.0f;
+	GLfloat nRange = 500.0f;
 	windowWidth = w;
 	windowHeight = h;
 
@@ -898,10 +898,10 @@ void ChangeSize(int w, int h) {
 	if (bPerspectiveProj) {
 		// Definiere das viewing volume (left, right, bottom, top, near, far)
 		if (w <= h) {
-			viewFrustum.SetPerspective(30.0f, h/w, 0.1, 1000);
+			viewFrustum.SetPerspective(30.0f, h/w, 1, 3000);
 		}
 		else {
-			viewFrustum.SetPerspective(30.0f, w / h, 0.1, 1000);
+			viewFrustum.SetPerspective(30.0f, w / h, 1, 3000);
 		}
 	}
 
