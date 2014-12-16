@@ -697,6 +697,7 @@ void DrawLowerLimb(float angle) {
 
 // Aufruf draw scene
 void RenderScene(void) {
+
 	// Clearbefehle für den color buffer und den depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -743,7 +744,7 @@ void RenderScene(void) {
 	modelViewMatrix.Translate(0, -110, 0);
 	DrawBaeumchen();
 	modelViewMatrix.PopMatrix();
-	DrawMaennchen(animationAngle += GL_PI / 10);
+	DrawMaennchen(animationAngle += GL_PI / 300);
 
 	// Hole die im Stack gespeicherten Transformationsmatrizen wieder zurück
 	modelViewMatrix.PopMatrix();
@@ -782,6 +783,7 @@ void SpecialKeys(int key, int x, int y) {
 }
 
 void ChangeSize(int w, int h) {
+
 	GLfloat nRange = 250.0f;
 	windowWidth = w;
 	windowHeight = h;
