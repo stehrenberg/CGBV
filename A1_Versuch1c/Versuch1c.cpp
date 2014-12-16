@@ -47,6 +47,9 @@ GLBatch sphereBody;
 // Rotationsgroessen
 static float rotation[] = { 0, 0, 0, 0 };
 
+// Vektor fuer UFO-Bewegungsmodus ueber Pfeiltasten
+M3DVector3f ufoMove = { 0.0f, 0.0f, 0.0f};
+
 // Flags fuer Schalter
 bool bCull = false;
 bool bOutline = false;
@@ -54,6 +57,7 @@ bool bDepth = true;
 unsigned int scale = 1;
 unsigned int tess = 5;
 bool bPerspectiveProj = false;
+bool bVertAxisInverted = true;
 
 unsigned int tesselation = pow(2, tess);
 unsigned int arraySize = 2 * tesselation + 2;
@@ -77,7 +81,8 @@ void ChangeSize(int w, int h);
 
 M3DVector4f blue = {0.0, 0.0, 1.0, 1.0};
 
-//Set Funktion für GUI, wird aufgerufen wenn Variable im GUI geändert wird
+/////////////////////////////// GROESSE AENDERN ////////////////////////////////////////
+
 void TW_CALL SetScale(const void *value, void *clientData)
 {
 	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
@@ -95,7 +100,6 @@ void TW_CALL SetScale(const void *value, void *clientData)
 	RenderScene();
 }
 
-//Get Funktion für GUI, damit GUI Variablen Wert zum anzeigen erhält
 void TW_CALL GetScale(void *value, void *clientData)
 {
 	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
@@ -105,7 +109,8 @@ void TW_CALL GetScale(void *value, void *clientData)
 	*uintptr = scale;
 }
 
-//Set Funktion für GUI, wird aufgerufen wenn Variable im GUI geändert wird
+//////////////////////////////////// TESSELIERUNG VARIIEREN ////////////////////////////
+
 void TW_CALL SetTesselation(const void *value, void *clientData)
 {
 	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
@@ -127,7 +132,6 @@ void TW_CALL SetTesselation(const void *value, void *clientData)
 	RenderScene();
 }
 
-//Get Funktion für GUI, damit GUI Variablen Wert zum anzeigen erhält
 void TW_CALL GetTesselation(void *value, void *clientData)
 {
 	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
@@ -137,13 +141,10 @@ void TW_CALL GetTesselation(void *value, void *clientData)
 	*uintptr = tess;
 }
 
+//////////////////////////////// PROJEKTIONSMODUS AENDERN ///////////////////////////////
 
-
-//Set Funktion für GUI, wird aufgerufen wenn Variable im GUI geändert wird
 void TW_CALL SetProjection(const void *value, void *clientData)
 {
-
-	std::cerr << "hallo" << std::endl;
 
 	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
 	const bool* boolptr = static_cast<const bool*>(value);
@@ -155,7 +156,6 @@ void TW_CALL SetProjection(const void *value, void *clientData)
 	ChangeSize(windowWidth, windowHeight);
 }
 
-//Get Funktion für GUI, damit GUI Variablen Wert zum anzeigen erhält
 void TW_CALL GetProjection(void *value, void *clientData)
 {
 	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
@@ -164,6 +164,31 @@ void TW_CALL GetProjection(void *value, void *clientData)
 	//Variablen Wert and GUI weiterreichen
 	*boolptr = bPerspectiveProj;
 }
+
+/////////////////////////////// INVERSION Y-ACHSE //////////////////////////////////////
+void TW_CALL SetYAchsisInversion(const void *value, void *clientData)
+{
+	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
+	const bool* boolptr = static_cast<const bool*>(value);
+
+	//Setzen der Variable auf neuen Wert
+	bVertAxisInverted = *boolptr;
+
+	// Neuaufruf zum Rendern des Bildes
+	ChangeSize(windowWidth, windowHeight);
+}
+
+void TW_CALL GetYAchsisInversion(void *value, void *clientData)
+{
+	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
+	bool* boolptr = static_cast<bool*>(value);
+
+	//Variablen Wert and GUI weiterreichen
+	*boolptr = bVertAxisInverted;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 
 //GUI
 TwBar *bar;
@@ -174,14 +199,10 @@ void InitGUI() {
 	TwAddVarRW(bar, "Depth Test?", TW_TYPE_BOOLCPP, &bDepth, "");
 	TwAddVarRW(bar, "Culling?", TW_TYPE_BOOLCPP, &bCull, "");
 	TwAddVarRW(bar, "Backface Wireframe?", TW_TYPE_BOOLCPP, &bOutline, "");
-
-	TwAddVarCB(bar, "Perspective Projection?", TW_TYPE_BOOLCPP, SetProjection, GetProjection, NULL, "");
-
-	//Scale Faktor als unsigned 32 bit integer definiert
 	TwAddVarCB(bar, "Groesse", TW_TYPE_UINT32, SetScale, GetScale, NULL, "");
-
-	//Tesselation Faktor als unsigned 32 bit integer definiert
 	TwAddVarCB(bar, "Tess.stufe", TW_TYPE_UINT32, SetTesselation, GetTesselation, NULL, "");
+	TwAddVarCB(bar, "Perspective Projection?", TW_TYPE_BOOLCPP, SetProjection, GetProjection, NULL, "");
+	TwAddVarCB(bar, "Y-Achse invertieren?", TW_TYPE_BOOLCPP, SetYAchsisInversion, GetYAchsisInversion, NULL, "");
 
 	//Hier weitere GUI Variablen anlegen. Für Farbe z.B. den Typ TW_TYPE_COLOR4F benutzen
 }
@@ -735,9 +756,16 @@ void RenderScene(void) {
 	//setze den Shader für das Rendern
 	shaderManager.UseStockShader(GLT_SHADER_FLAT_ATTRIBUTES, transformPipeline.GetModelViewProjectionMatrix());
 	
-	// Augenpunktstransformation fuer perspektivische Projektion
-	if (bPerspectiveProj)
+	// zusaetzliche Transformationen bei persp. Projektion
+	if (bPerspectiveProj) {
+
+		// Augenpunktstransformation
 		modelViewMatrix.Translate(0.0f, 0.0f, -1000.0f);
+
+		// Vektor fuer UFO-Bewegungsmodus draufrechnen
+		modelViewMatrix.Translate(ufoMove[0], ufoMove[1], ufoMove[2]);
+	}
+
 
 	//Zeichne Objekte
 	modelViewMatrix.PushMatrix();
@@ -776,7 +804,39 @@ void SetupRC() {
 	InitGUI();
 }
 
+/** params: 
+*		key --> pressed key
+*		x --> cursor x coordinate
+*		y --> cursor y coordinate
+*/
 void SpecialKeys(int key, int x, int y) {
+
+	float xStep = 5.0f;
+	float yStep = 5.0f;
+	float zStep = 5.0f;
+
+	if (bVertAxisInverted)
+		yStep = -5;
+
+	switch (key) {
+		case GLUT_KEY_LEFT:
+			ufoMove[0] += xStep;
+			glutPostRedisplay();
+			break;
+		case GLUT_KEY_RIGHT:
+			ufoMove[0] -= xStep;
+			glutPostRedisplay();
+			break;
+		case GLUT_KEY_UP:
+			ufoMove[2] += zStep;
+			glutPostRedisplay();
+			break;
+		case GLUT_KEY_DOWN:
+			ufoMove[2] -= zStep;
+			glutPostRedisplay();
+			break;
+	}
+
 	TwEventKeyboardGLUT(key, x, y);
 	// Zeichne das Window neu
 	glutPostRedisplay();
