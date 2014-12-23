@@ -779,7 +779,7 @@ void RenderScene(void) {
 	modelViewMatrix.Translate(0, -110, 0);
 	DrawBaeumchen();
 	modelViewMatrix.PopMatrix();
-	DrawMaennchen(animationAngle += GL_PI / 300);
+	DrawMaennchen(animationAngle += GL_PI / 15);
 
 	// Hole die im Stack gespeicherten Transformationsmatrizen wieder zurück
 	modelViewMatrix.PopMatrix();

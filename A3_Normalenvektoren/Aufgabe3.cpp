@@ -23,6 +23,9 @@ GLFrustum viewFrustum;
 GLBatch geometryBatch;
 GLuint shaders;
 
+// Prototypen
+void CreateTriangle(void);
+
 /// View space light position
 float light_pos[4] = {0.5f,0.1f,-5.0f,1.0f} ;
 /// Lichtfarben
@@ -51,19 +54,7 @@ void InitGUI()
 }
 void CreateGeometry()
 {
-	//Dreieck
-	geometryBatch.Begin(GL_TRIANGLES,3);
-	
-	geometryBatch.Normal3f(0,0,1);
-	geometryBatch.Vertex3f(-1,-1,0);
-	
-	geometryBatch.Normal3f(0,0,1);
-	geometryBatch.Vertex3f(0,1,0);
-	
-	geometryBatch.Normal3f(0,0,1);
-	geometryBatch.Vertex3f(1,-1,0);
-	
-	geometryBatch.End();
+	CreateTriangle();
 	
 	//Shader Programme laden. Die letzen Argumente geben die Shader-Attribute an. Hier wird Vertex und Normale gebraucht.
 	shaders =  gltLoadShaderPairWithAttributes("VertexShader.glsl", "FragmentShader.glsl", 2, 
@@ -71,6 +62,21 @@ void CreateGeometry()
 		GLT_ATTRIBUTE_NORMAL, "vNormal");
 	
 	gltCheckErrors(shaders);
+}
+
+void CreateTriangle() {
+	geometryBatch.Begin(GL_TRIANGLES,3);
+
+	geometryBatch.Normal3f(0,0,1);
+	geometryBatch.Vertex3f(-1,-1,0);
+
+	geometryBatch.Normal3f(0,0,1);
+	geometryBatch.Vertex3f(0,1,0);
+
+	geometryBatch.Normal3f(0,0,1);
+	geometryBatch.Vertex3f(1,-1,0);
+
+	geometryBatch.End();
 }
 
 // Aufruf draw scene
