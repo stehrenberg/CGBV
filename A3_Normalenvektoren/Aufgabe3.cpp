@@ -85,7 +85,7 @@ void CreateGeometry()
 	float x, y, z;
 	
 	geometryBatch.Begin(GL_TRIANGLES,384);
-	normalsBatch.Begin(GL_LINE, 96);
+	normalsBatch.Begin(GL_LINES, 384);
 
 	for (float angle = 0.0f; angle <= 2 * GL_PI; angle += GL_PI/16) {
 
@@ -100,24 +100,44 @@ void CreateGeometry()
 		geometryBatch.Normal3f(0, y, 0);
 		geometryBatch.Vertex3f(cos(angle + GL_PI / 16), y, sin(angle + GL_PI / 16));
 		geometryBatch.Normal3f(0, y, 0);
+		normalsBatch.Vertex3f(0, y, 0);
+		normalsBatch.Vertex3f(0, 2*y, 0);
 
 		// Mantel
 		float xNext = cos(angle + GL_PI / 16);
 		float zNext = sin(angle + GL_PI / 16);
+		float xNorm = cos(angle + GL_PI / 8);
+		float zNorm = sin(angle + GL_PI / 8);
 
 		geometryBatch.Vertex3f(x, y, z);
 		geometryBatch.Normal3f(x, 0, z);
+		normalsBatch.Vertex3f(x, y, z);
+		normalsBatch.Vertex3f(2*x, y, 2*z);
+
 		geometryBatch.Vertex3f(x, -y, z);
 		geometryBatch.Normal3f(x, 0, z);
-		geometryBatch.Vertex3f(xNext, y, zNext);
-		geometryBatch.Normal3f(x, 0, z);
+		normalsBatch.Vertex3f(x, -y, z);
+		normalsBatch.Vertex3f(2 * x, -y, 2 * z);
 
 		geometryBatch.Vertex3f(xNext, y, zNext);
 		geometryBatch.Normal3f(x, 0, z);
+		normalsBatch.Vertex3f(x, y, z);
+		normalsBatch.Vertex3f(2 * x, y, 2 * z);
+
+		geometryBatch.Vertex3f(xNext, y, zNext);
+		geometryBatch.Normal3f(x, 0, z);
+		normalsBatch.Vertex3f(x, y, z);
+		normalsBatch.Vertex3f(2 * x, y, 2 * z);
+
 		geometryBatch.Vertex3f(x, -y, z);
 		geometryBatch.Normal3f(x, 0, z);
+		normalsBatch.Vertex3f(x, -y, z);
+		normalsBatch.Vertex3f(2 * x, -y, 2 * z);
+
 		geometryBatch.Vertex3f(xNext, -y, zNext);
 		geometryBatch.Normal3f(x, 0, z);
+		normalsBatch.Vertex3f(x, -y, z);
+		normalsBatch.Vertex3f(2 * x, -y, 2 * z);
 		
 		// Boden
 		geometryBatch.Vertex3f(0, -y, 0);
@@ -172,9 +192,11 @@ void RenderScene(void)
 	glUniform4fv(glGetUniformLocation(shaders, "mat_ambient"),1,mat_ambient);
 	glUniform4fv(glGetUniformLocation(shaders, "mat_diffuse"),1,mat_diffuse);
 	glUniform4fv(glGetUniformLocation(shaders, "mat_specular"),1,mat_specular);
+	
 	//Zeichne Model
 	geometryBatch.Draw();
-	normalsBatch.Draw();
+	if (showNormals)
+		normalsBatch.Draw();
 
 	// Hole die im Stack gespeicherten Transformationsmatrizen wieder zurück
 	modelViewMatrix.PopMatrix();
