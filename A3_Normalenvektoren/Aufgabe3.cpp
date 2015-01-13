@@ -102,18 +102,21 @@ void CreateGeometry()
 		geometryBatch.Normal3f(0, y, 0);
 
 		// Mantel
+		float xNext = cos(angle + GL_PI / 16);
+		float zNext = sin(angle + GL_PI / 16);
+
 		geometryBatch.Vertex3f(x, y, z);
 		geometryBatch.Normal3f(x, 0, z);
 		geometryBatch.Vertex3f(x, -y, z);
 		geometryBatch.Normal3f(x, 0, z);
-		geometryBatch.Vertex3f(cos(angle + GL_PI / 16), y, sin(angle + GL_PI / 16));
+		geometryBatch.Vertex3f(xNext, y, zNext);
 		geometryBatch.Normal3f(x, 0, z);
 
-		geometryBatch.Vertex3f(cos(angle + GL_PI / 16), y, sin(angle + GL_PI / 16));
+		geometryBatch.Vertex3f(xNext, y, zNext);
 		geometryBatch.Normal3f(x, 0, z);
 		geometryBatch.Vertex3f(x, -y, z);
 		geometryBatch.Normal3f(x, 0, z);
-		geometryBatch.Vertex3f(cos(angle + GL_PI / 16), -y, sin(angle + GL_PI / 16));
+		geometryBatch.Vertex3f(xNext, -y, zNext);
 		geometryBatch.Normal3f(x, 0, z);
 		
 		// Boden
@@ -121,7 +124,7 @@ void CreateGeometry()
 		geometryBatch.Normal3f(0, -y, 0);
 		geometryBatch.Vertex3f(x, -y, z);
 		geometryBatch.Normal3f(0, -y, 0);
-		geometryBatch.Vertex3f(cos(angle + GL_PI / 16), -y, sin(angle + GL_PI / 16));
+		geometryBatch.Vertex3f(xNext, -y, zNext);
 		geometryBatch.Normal3f(0, -y, 0);
 	}
 		
