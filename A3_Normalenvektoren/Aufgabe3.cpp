@@ -7,6 +7,8 @@
 #include <windows.h>
 #endif
 
+#define GL_PI 3.142f
+
 #include <GLTools.h>
 #include <GLMatrixStack.h>
 #include <GLGeometryTransform.h>
@@ -21,6 +23,7 @@ GLMatrixStack projectionMatrix;
 GLGeometryTransform transformPipeline;
 GLFrustum viewFrustum;
 GLBatch geometryBatch;
+GLBatch normalsBatch;
 GLuint shaders;
 
 /// View space light position
@@ -36,10 +39,36 @@ float mat_ambient[4]  = {0.0, 0.0, 0.0, 1.0};
 float mat_diffuse[4]    = {1.0, 1.0, 1.0, 1.0};
 float mat_specular[4]   = {1.0, 1.0, 1.0, 1.0};
 float specular_power = 10 ;
+
 // Rotationsgroessen
 float rotation[] = {0, 0,0,0};
+
 //GUI
 TwBar *bar;
+
+// GUI-Schalter
+bool showNormals = false;
+
+/////////////////////////////// NORMALEN-VEKTOREN ANZEIGEN //////////////////////////////////////
+void TW_CALL SetShowNormals(const void *value, void *clientData)
+{
+	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
+	const bool* boolptr = static_cast<const bool*>(value);
+
+	//Setzen der Variable auf neuen Wert
+	showNormals = *boolptr;
+}
+
+void TW_CALL GetShowNormals(void *value, void *clientData)
+{
+	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
+	bool* boolptr = static_cast<bool*>(value);
+
+	//Variablen Wert and GUI weiterreichen
+	*boolptr = showNormals;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 void InitGUI()
 {
@@ -48,22 +77,56 @@ void InitGUI()
 	TwAddVarRW(bar,"Model Rotation",TW_TYPE_QUAT4F,&rotation,"");
 	TwAddVarRW(bar,"Light Position", TW_TYPE_DIR3F,&light_pos,"group=Light axisx=-x axisy=-y axisz=-z");
 	//Hier weitere GUI Variablen anlegen. Für Farbe z.B. den Typ TW_TYPE_COLOR4F benutzen
+	TwAddVarRW(bar, "Show Normals?", TW_TYPE_BOOLCPP, &showNormals, "");
 }
 void CreateGeometry()
 {
-	//Dreieck
-	geometryBatch.Begin(GL_TRIANGLES,3);
+
+	float x, y, z;
 	
-	geometryBatch.Normal3f(0,0,1);
-	geometryBatch.Vertex3f(-1,-1,0);
-	
-	geometryBatch.Normal3f(0,0,1);
-	geometryBatch.Vertex3f(0,1,0);
-	
-	geometryBatch.Normal3f(0,0,1);
-	geometryBatch.Vertex3f(1,-1,0);
-	
+	geometryBatch.Begin(GL_TRIANGLES,384);
+	normalsBatch.Begin(GL_LINE, 96);
+
+	for (float angle = 0.0f; angle <= 2 * GL_PI; angle += GL_PI/16) {
+
+		x = cos(angle);
+		y = 1.0f;
+		z = sin(angle);
+
+		// Deckel
+		geometryBatch.Vertex3f(0, y, 0);
+		geometryBatch.Normal3f(0, y, 0);
+		geometryBatch.Vertex3f(x, y, z);
+		geometryBatch.Normal3f(0, y, 0);
+		geometryBatch.Vertex3f(cos(angle + GL_PI / 16), y, sin(angle + GL_PI / 16));
+		geometryBatch.Normal3f(0, y, 0);
+
+		// Mantel
+		geometryBatch.Vertex3f(x, y, z);
+		geometryBatch.Normal3f(x, 0, z);
+		geometryBatch.Vertex3f(x, -y, z);
+		geometryBatch.Normal3f(x, 0, z);
+		geometryBatch.Vertex3f(cos(angle + GL_PI / 16), y, sin(angle + GL_PI / 16));
+		geometryBatch.Normal3f(x, 0, z);
+
+		geometryBatch.Vertex3f(cos(angle + GL_PI / 16), y, sin(angle + GL_PI / 16));
+		geometryBatch.Normal3f(x, 0, z);
+		geometryBatch.Vertex3f(x, -y, z);
+		geometryBatch.Normal3f(x, 0, z);
+		geometryBatch.Vertex3f(cos(angle + GL_PI / 16), -y, sin(angle + GL_PI / 16));
+		geometryBatch.Normal3f(x, 0, z);
+		
+		// Boden
+		geometryBatch.Vertex3f(0, -y, 0);
+		geometryBatch.Normal3f(0, -y, 0);
+		geometryBatch.Vertex3f(x, -y, z);
+		geometryBatch.Normal3f(0, -y, 0);
+		geometryBatch.Vertex3f(cos(angle + GL_PI / 16), -y, sin(angle + GL_PI / 16));
+		geometryBatch.Normal3f(0, -y, 0);
+	}
+		
 	geometryBatch.End();
+	normalsBatch.End();
 	
 	//Shader Programme laden. Die letzen Argumente geben die Shader-Attribute an. Hier wird Vertex und Normale gebraucht.
 	shaders =  gltLoadShaderPairWithAttributes("VertexShader.glsl", "FragmentShader.glsl", 2, 
@@ -108,6 +171,7 @@ void RenderScene(void)
 	glUniform4fv(glGetUniformLocation(shaders, "mat_specular"),1,mat_specular);
 	//Zeichne Model
 	geometryBatch.Draw();
+	normalsBatch.Draw();
 
 	// Hole die im Stack gespeicherten Transformationsmatrizen wieder zurück
 	modelViewMatrix.PopMatrix();
@@ -140,8 +204,6 @@ void ShutDownRC()
 	glDeleteProgram(shaders);
 	TwTerminate();
 }
-
-
 
 void ChangeSize(int w, int h)
 {
