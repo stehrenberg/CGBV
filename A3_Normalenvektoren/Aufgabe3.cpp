@@ -31,6 +31,7 @@ GLuint shaders;
 
 /// View space light position
 float light_pos[4] = {0.5f,0.1f,-5.0f,1.0f} ;
+
 /// Lichtfarben
 float light_ambient[4] = {0.0, 0.0, 0.0, 1.0}; 
 float light_diffuse[4] = {0.9f,0.0f,0.5f,1.0f} ;
@@ -99,6 +100,10 @@ void TW_CALL GetFlatShading(void *value, void *clientData)
 	*boolptr = flatShading;
 }
 
+/////////////////////////////// MATERIALEIGENSCHAFTEN //////////////////////////////////////
+
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void InitGUI()
@@ -108,6 +113,14 @@ void InitGUI()
 	TwAddVarRW(bar,"Model Rotation",TW_TYPE_QUAT4F,&rotation,"");
 	TwAddVarRW(bar,"Light Position", TW_TYPE_DIR3F,&light_pos,"group=Light axisx=-x axisy=-y axisz=-z");
 	//Hier weitere GUI Variablen anlegen. Für Farbe z.B. den Typ TW_TYPE_COLOR4F benutzen
+	TwAddVarRW(bar, "Light Position", TW_TYPE_DIR3F, &light_pos, "group=Light axisx=-x axisy=-y axisz=-z");
+	TwAddVarRW(bar, "light_ambient", TW_TYPE_COLOR3F, &light_ambient, "group=Light axisx=-x axisy=-y axisz=-z");
+	TwAddVarRW(bar, "light_diffuse", TW_TYPE_COLOR3F, &light_diffuse, "group=Light axisx=-x axisy=-y axisz=-z");
+	TwAddVarRW(bar, "light_specular", TW_TYPE_COLOR3F, &light_specular, "group=Light axisx=-x axisy=-y axisz=-z");
+	TwAddVarRW(bar, "mat_emissive", TW_TYPE_COLOR3F, &mat_emissive, "group=Material axisx=-x axisy=-y axisz=-z");
+	TwAddVarRW(bar, "mat_ambient", TW_TYPE_COLOR3F, &mat_ambient, "group=Material axisx=-x axisy=-y axisz=-z");
+	TwAddVarRW(bar, "mat_diffuse", TW_TYPE_COLOR3F, &mat_diffuse, "group=Material axisx=-x axisy=-y axisz=-z");
+	TwAddVarRW(bar, "mat_specular", TW_TYPE_COLOR3F, &mat_specular, "group=Material axisx=-x axisy=-y axisz=-z");
 	TwAddVarRW(bar, "Show Normals?", TW_TYPE_BOOLCPP, &showNormals, "");
 	TwAddVarCB(bar, "Flat Shading?", TW_TYPE_BOOLCPP, SetFlatShading, GetFlatShading, NULL, "");
 }
