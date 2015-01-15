@@ -7,6 +7,13 @@
 #include <windows.h>
 #endif
 
+#define GL_PI 3.142f
+#define accuarancy 8
+#define dAccuarancy (accuarancy*2)
+#define nArray (dAccuarancy*6)
+#define tArray (nArray*3)
+
+#include <iostream>
 #include <GLTools.h>
 #include <GLMatrixStack.h>
 #include <GLGeometryTransform.h>
@@ -20,7 +27,10 @@ GLMatrixStack modelViewMatrix;
 GLMatrixStack projectionMatrix;
 GLGeometryTransform transformPipeline;
 GLFrustum viewFrustum;
-GLBatch geometryBatch;
+GLBatch top;
+GLBatch bottom;
+GLBatch plane;
+GLBatch normalsBatch;
 GLuint shaders;
 
 // Prototypen
@@ -28,6 +38,7 @@ void CreateTriangle(void);
 
 /// View space light position
 float light_pos[4] = {0.5f,0.1f,-5.0f,1.0f} ;
+
 /// Lichtfarben
 float light_ambient[4] = {0.0, 0.0, 0.0, 1.0}; 
 float light_diffuse[4] = {0.9f,0.0f,0.5f,1.0f} ;
@@ -39,10 +50,62 @@ float mat_ambient[4]  = {0.0, 0.0, 0.0, 1.0};
 float mat_diffuse[4]    = {1.0, 1.0, 1.0, 1.0};
 float mat_specular[4]   = {1.0, 1.0, 1.0, 1.0};
 float specular_power = 10 ;
+
 // Rotationsgroessen
 float rotation[] = {0, 0,0,0};
+
 //GUI
 TwBar *bar;
+
+// GUI-Schalter
+bool showNormals = false;
+bool flatShading = true;
+
+// Prototypen
+void CreateGeometry(void);
+void RenderScene(void);
+
+/////////////////////////////// NORMALEN-VEKTOREN ANZEIGEN //////////////////////////////////////
+
+void TW_CALL SetShowNormals(const void *value, void *clientData)
+{
+	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
+	const bool* boolptr = static_cast<const bool*>(value);
+
+	//Setzen der Variable auf neuen Wert
+	showNormals = *boolptr;
+}
+
+void TW_CALL GetShowNormals(void *value, void *clientData)
+{
+	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
+	bool* boolptr = static_cast<bool*>(value);
+
+	//Variablen Wert and GUI weiterreichen
+	*boolptr = showNormals;
+}
+
+/////////////////////////////// FLAT-SHADING ANZEIGEN //////////////////////////////////////
+
+void TW_CALL SetFlatShading(const void *value, void *clientData)
+{
+	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
+	const bool* boolptr = static_cast<const bool*>(value);
+
+	//Setzen der Variable auf neuen Wert
+	flatShading = *boolptr;
+	
+	CreateGeometry();
+}
+
+void TW_CALL GetFlatShading(void *value, void *clientData)
+{
+	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
+	bool* boolptr = static_cast<bool*>(value);
+
+	//Variablen Wert and GUI weiterreichen
+	*boolptr = flatShading;
+}
 
 void InitGUI()
 {
@@ -50,11 +113,205 @@ void InitGUI()
 	TwDefine(" TweakBar size='200 400'"); 
 	TwAddVarRW(bar,"Model Rotation",TW_TYPE_QUAT4F,&rotation,"");
 	TwAddVarRW(bar,"Light Position", TW_TYPE_DIR3F,&light_pos,"group=Light axisx=-x axisy=-y axisz=-z");
-	//Hier weitere GUI Variablen anlegen. Für Farbe z.B. den Typ TW_TYPE_COLOR4F benutzen
+	TwAddVarRW(bar, "light_ambient", TW_TYPE_COLOR3F, &light_ambient, "group=Light axisx=-x axisy=-y axisz=-z");
+	TwAddVarRW(bar, "light_diffuse", TW_TYPE_COLOR3F, &light_diffuse, "group=Light axisx=-x axisy=-y axisz=-z");
+	TwAddVarRW(bar, "light_specular", TW_TYPE_COLOR3F, &light_specular, "group=Light axisx=-x axisy=-y axisz=-z");
+	TwAddVarRW(bar, "mat_emissive", TW_TYPE_COLOR3F, &mat_emissive, "group=Material axisx=-x axisy=-y axisz=-z");
+	TwAddVarRW(bar, "mat_ambient", TW_TYPE_COLOR3F, &mat_ambient, "group=Material axisx=-x axisy=-y axisz=-z");
+	TwAddVarRW(bar, "mat_diffuse", TW_TYPE_COLOR3F, &mat_diffuse, "group=Material axisx=-x axisy=-y axisz=-z");
+	TwAddVarRW(bar, "mat_specular", TW_TYPE_COLOR3F, &mat_specular, "group=Material axisx=-x axisy=-y axisz=-z");
+	TwAddVarRW(bar, "Show Normals?", TW_TYPE_BOOLCPP, &showNormals, "");
+	TwAddVarCB(bar, "Flat Shading?", TW_TYPE_UINT32, SetFlatShading, GetFlatShading, NULL, "");
 }
+
 void CreateGeometry()
 {
-	CreateTriangle();
+	float x, y, z;
+	y = 1.0f;
+	
+	plane.Reset();
+	top.Reset();
+	bottom.Reset();
+	normalsBatch.Reset();
+
+	top.Begin(GL_TRIANGLES, nArray);
+	plane.Begin(GL_TRIANGLES, nArray);
+	bottom.Begin(GL_TRIANGLES, nArray);
+	normalsBatch.Begin(GL_LINES, tArray);
+
+	// Deckel
+	for (float angle = 0.0f; angle < 2 * GL_PI; angle += GL_PI / accuarancy) {
+		x = cos(angle);
+		z = sin(angle);
+		float xNext = cos(angle + GL_PI / accuarancy);
+		float zNext = sin(angle + GL_PI / accuarancy);
+
+		// Deckelmittelpunkt
+		top.Normal3f(0, y, 0); 
+		top.Vertex3f(0, y, 0);
+
+		if (flatShading < 90) {
+			top.Normal3f(0, y, 0);
+			top.Vertex3f(x, y, z);
+			top.Normal3f(0, y, 0);
+			top.Vertex3f(xNext, y, zNext);
+			normalsBatch.Vertex3f(x, y, z);
+			normalsBatch.Vertex3f(x, 2 * y, z);
+		} else {
+			// TODO Normalisieren!
+			top.Normal3f(x, 1, z);
+			top.Vertex3f(x, y, z);
+			// TODO Normalisieren!
+			top.Normal3f(xNext, y, zNext);
+			top.Vertex3f(xNext, y, zNext);
+			normalsBatch.Vertex3f(x, y, z);
+			normalsBatch.Vertex3f(x + x, 2* y, z + z);
+		}		
+	}
+
+	// Mantel
+	for (float angle = 0.0f; angle < 2 * GL_PI; angle += GL_PI / accuarancy) {
+		x = cos(angle);
+		z = sin(angle);
+		float xNext = cos(angle + GL_PI / accuarancy);
+		float zNext = sin(angle + GL_PI / accuarancy);
+
+		if (flatShading < 45) {
+			plane.Normal3f(cos(angle + GL_PI / dAccuarancy), 0, sin(angle + GL_PI / dAccuarancy));
+			normalsBatch.Vertex3f(x, y, z);
+			normalsBatch.Vertex3f(x + cos(angle + GL_PI / dAccuarancy), y, z + sin(angle + GL_PI / dAccuarancy));
+		} else if (flatShading < 90) {
+			plane.Normal3f(x, 0, z);
+			normalsBatch.Vertex3f(x, y, z);
+			normalsBatch.Vertex3f(2 * x, y, 2 * z);
+		} else {
+			// TODO Normalisieren!
+			plane.Normal3f(x, 1, z);
+			normalsBatch.Vertex3f(x, y, z);
+			normalsBatch.Vertex3f(x +x , 2*y, z +z);
+		}
+
+		plane.Vertex3f(x, y, z);		
+
+		if (flatShading < 45) {
+			plane.Normal3f(cos(angle + GL_PI / dAccuarancy), 0, sin(angle + GL_PI / dAccuarancy));
+			normalsBatch.Vertex3f(x, -y, z);
+			normalsBatch.Vertex3f(x + cos(angle + GL_PI / dAccuarancy), -y, z + sin(angle + GL_PI / dAccuarancy));
+		} else if (flatShading < 90) {
+			plane.Normal3f(x, 0, z);
+			normalsBatch.Vertex3f(x, -y, z);
+			normalsBatch.Vertex3f(2 * x, -y, 2 * z);
+		} else {
+			// TODO Normalisieren!
+			plane.Normal3f(x, 1, z);
+			normalsBatch.Vertex3f(x, -y, z);
+			normalsBatch.Vertex3f(x + x, -y - y, z + z);
+		}
+
+		plane.Vertex3f(x, -y, z);
+
+		if (flatShading < 45) {
+			plane.Normal3f(cos(angle + GL_PI / dAccuarancy), 0, sin(angle + GL_PI / dAccuarancy));
+			normalsBatch.Vertex3f(xNext, y, zNext);
+			normalsBatch.Vertex3f(xNext + cos(angle + GL_PI / dAccuarancy), y, zNext + sin(angle + GL_PI / dAccuarancy));
+		} else if (flatShading < 90){
+			plane.Normal3f(xNext, 0, zNext);
+			normalsBatch.Vertex3f(xNext, y, zNext);
+			normalsBatch.Vertex3f(2 * xNext, y, 2 * zNext);
+		} else {
+			// TODO Normalisieren!
+			plane.Normal3f(xNext, 1, zNext);
+			normalsBatch.Vertex3f(xNext, y, zNext);
+			normalsBatch.Vertex3f(xNext + xNext, y + y, zNext + zNext);
+		}
+
+		plane.Vertex3f(xNext, y, zNext);
+
+		if (flatShading < 45) {
+			plane.Normal3f(cos(angle + GL_PI / dAccuarancy), 0, sin(angle + GL_PI / dAccuarancy));
+			normalsBatch.Vertex3f(xNext, y, zNext);
+			normalsBatch.Vertex3f(xNext + cos(angle + GL_PI / dAccuarancy), y, zNext + sin(angle + GL_PI / dAccuarancy));
+		} else if (flatShading < 90){
+			plane.Normal3f(xNext, 0, zNext);
+			normalsBatch.Vertex3f(xNext, y, zNext);
+			normalsBatch.Vertex3f(2 * xNext, y, 2 * zNext);
+		} else {
+			// TODO Normalisieren!
+			plane.Normal3f(xNext, 1, zNext);
+			normalsBatch.Vertex3f(xNext, y, zNext);
+			normalsBatch.Vertex3f(xNext + xNext, y + y, zNext + zNext);
+		}
+
+		plane.Vertex3f(xNext, y, zNext);		
+
+		if (flatShading < 45) {
+			plane.Normal3f(cos(angle + GL_PI / dAccuarancy), 0, sin(angle + GL_PI / dAccuarancy));
+			normalsBatch.Vertex3f(xNext, -y, zNext);
+			normalsBatch.Vertex3f(xNext + cos(angle + GL_PI / dAccuarancy), -y, zNext + sin(angle + GL_PI / dAccuarancy));
+		} else if (flatShading < 90) {
+			plane.Normal3f(x, 0, z);
+			normalsBatch.Vertex3f(x, -y, z);
+			normalsBatch.Vertex3f(2 * x, -y, 2 * z);
+		} else {
+			// TODO Normalisieren!
+			plane.Normal3f(x, 1, z);
+			normalsBatch.Vertex3f(x, -y, z);
+			normalsBatch.Vertex3f(x + x, -y - y, z + z);
+		}
+
+		plane.Vertex3f(x, -y, z);		
+
+		if (flatShading < 45) {
+			plane.Normal3f(cos(angle + GL_PI / dAccuarancy), 0, sin(angle + GL_PI / dAccuarancy));
+			normalsBatch.Vertex3f(xNext, -y, zNext);
+			normalsBatch.Vertex3f(xNext + cos(angle + GL_PI / dAccuarancy), -y, zNext + sin(angle + GL_PI / dAccuarancy));
+		} else if (flatShading < 90) {
+			plane.Normal3f(xNext, 0, zNext);
+			normalsBatch.Vertex3f(xNext, -y, zNext);
+			normalsBatch.Vertex3f(2 * xNext, -y, 2 * zNext);
+		} else {
+			// TODO Normalisieren!
+			plane.Normal3f(xNext, 1, zNext);
+			normalsBatch.Vertex3f(xNext, -y, zNext);
+			normalsBatch.Vertex3f(xNext + xNext, -y - y, zNext + zNext);
+		}
+
+		plane.Vertex3f(xNext, -y, zNext);		
+	}
+	
+	// Boden
+	for (float angle = 0.0f; angle < 2 * GL_PI; angle += GL_PI / accuarancy) {
+		x = cos(angle);
+		z = sin(angle);
+		float xNext = cos(angle + GL_PI / accuarancy);
+		float zNext = sin(angle + GL_PI / accuarancy);
+		
+		// Bodenmittelpunkt
+		bottom.Normal3f(0, -y, 0);
+		bottom.Vertex3f(0, -y, 0);
+				
+		if (flatShading < 90) {
+			bottom.Normal3f(0, -y, 0);
+			bottom.Vertex3f(x, -y, z);
+			bottom.Normal3f(0, -y, 0);
+			bottom.Vertex3f(xNext, -y, zNext);
+			normalsBatch.Vertex3f(x, -y, z);
+			normalsBatch.Vertex3f(x, 2 * -y, z);
+		} else {
+			// TODO Normalisieren!
+			bottom.Normal3f(x, -y, z);
+			bottom.Vertex3f(x, -y, z);
+			bottom.Normal3f(xNext, -y, zNext);
+			bottom.Vertex3f(xNext, -y, zNext);
+			normalsBatch.Vertex3f(x, -y, z);
+			normalsBatch.Vertex3f(x + x, -y - y, z + z);
+		}		
+	}	
+		
+	top.End();
+	plane.End();
+	bottom.End();
+	normalsBatch.End();
 	
 	//Shader Programme laden. Die letzen Argumente geben die Shader-Attribute an. Hier wird Vertex und Normale gebraucht.
 	shaders =  gltLoadShaderPairWithAttributes("VertexShader.glsl", "FragmentShader.glsl", 2, 
@@ -62,21 +319,7 @@ void CreateGeometry()
 		GLT_ATTRIBUTE_NORMAL, "vNormal");
 	
 	gltCheckErrors(shaders);
-}
 
-void CreateTriangle() {
-	geometryBatch.Begin(GL_TRIANGLES,3);
-
-	geometryBatch.Normal3f(0,0,1);
-	geometryBatch.Vertex3f(-1,-1,0);
-
-	geometryBatch.Normal3f(0,0,1);
-	geometryBatch.Vertex3f(0,1,0);
-
-	geometryBatch.Normal3f(0,0,1);
-	geometryBatch.Vertex3f(1,-1,0);
-
-	geometryBatch.End();
 }
 
 // Aufruf draw scene
@@ -112,8 +355,13 @@ void RenderScene(void)
 	glUniform4fv(glGetUniformLocation(shaders, "mat_ambient"),1,mat_ambient);
 	glUniform4fv(glGetUniformLocation(shaders, "mat_diffuse"),1,mat_diffuse);
 	glUniform4fv(glGetUniformLocation(shaders, "mat_specular"),1,mat_specular);
+	
 	//Zeichne Model
-	geometryBatch.Draw();
+	top.Draw();
+	bottom.Draw();
+	plane.Draw();
+	if (showNormals)
+		normalsBatch.Draw();
 
 	// Hole die im Stack gespeicherten Transformationsmatrizen wieder zurück
 	modelViewMatrix.PopMatrix();
@@ -146,8 +394,6 @@ void ShutDownRC()
 	glDeleteProgram(shaders);
 	TwTerminate();
 }
-
-
 
 void ChangeSize(int w, int h)
 {
