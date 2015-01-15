@@ -8,6 +8,10 @@
 #endif
 
 #define GL_PI 3.142f
+#define accuarancy 8
+#define dAccuarancy (accuarancy*2)
+#define nArray (dAccuarancy*6)
+#define tArray (nArray*3)
 
 #include <iostream>
 #include <GLTools.h>
@@ -100,20 +104,12 @@ void TW_CALL GetFlatShading(void *value, void *clientData)
 	*boolptr = flatShading;
 }
 
-/////////////////////////////// MATERIALEIGENSCHAFTEN //////////////////////////////////////
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-
 void InitGUI()
 {
 	bar = TwNewBar("TweakBar");
 	TwDefine(" TweakBar size='200 400'"); 
 	TwAddVarRW(bar,"Model Rotation",TW_TYPE_QUAT4F,&rotation,"");
 	TwAddVarRW(bar,"Light Position", TW_TYPE_DIR3F,&light_pos,"group=Light axisx=-x axisy=-y axisz=-z");
-	//Hier weitere GUI Variablen anlegen. Für Farbe z.B. den Typ TW_TYPE_COLOR4F benutzen
-	TwAddVarRW(bar, "Light Position", TW_TYPE_DIR3F, &light_pos, "group=Light axisx=-x axisy=-y axisz=-z");
 	TwAddVarRW(bar, "light_ambient", TW_TYPE_COLOR3F, &light_ambient, "group=Light axisx=-x axisy=-y axisz=-z");
 	TwAddVarRW(bar, "light_diffuse", TW_TYPE_COLOR3F, &light_diffuse, "group=Light axisx=-x axisy=-y axisz=-z");
 	TwAddVarRW(bar, "light_specular", TW_TYPE_COLOR3F, &light_specular, "group=Light axisx=-x axisy=-y axisz=-z");
@@ -122,137 +118,180 @@ void InitGUI()
 	TwAddVarRW(bar, "mat_diffuse", TW_TYPE_COLOR3F, &mat_diffuse, "group=Material axisx=-x axisy=-y axisz=-z");
 	TwAddVarRW(bar, "mat_specular", TW_TYPE_COLOR3F, &mat_specular, "group=Material axisx=-x axisy=-y axisz=-z");
 	TwAddVarRW(bar, "Show Normals?", TW_TYPE_BOOLCPP, &showNormals, "");
-	TwAddVarCB(bar, "Flat Shading?", TW_TYPE_BOOLCPP, SetFlatShading, GetFlatShading, NULL, "");
+	TwAddVarCB(bar, "Flat Shading?", TW_TYPE_UINT32, SetFlatShading, GetFlatShading, NULL, "");
 }
 
 void CreateGeometry()
 {
-
 	float x, y, z;
+	y = 1.0f;
 	
 	plane.Reset();
+	top.Reset();
+	bottom.Reset();
 	normalsBatch.Reset();
 
-	top.Begin(GL_TRIANGLES,192);
-	plane.Begin(GL_TRIANGLES, 192);
-	bottom.Begin(GL_TRIANGLES, 192);
-	normalsBatch.Begin(GL_LINES, 576);
+	top.Begin(GL_TRIANGLES, nArray);
+	plane.Begin(GL_TRIANGLES, nArray);
+	bottom.Begin(GL_TRIANGLES, nArray);
+	normalsBatch.Begin(GL_LINES, tArray);
 
 	// Deckel
-	for (float angle = 0.0f; angle < 2 * GL_PI; angle += GL_PI / 16) {
-
+	for (float angle = 0.0f; angle < 2 * GL_PI; angle += GL_PI / accuarancy) {
 		x = cos(angle);
-		y = 1.0f;
 		z = sin(angle);
+		float xNext = cos(angle + GL_PI / accuarancy);
+		float zNext = sin(angle + GL_PI / accuarancy);
 
 		top.Normal3f(0, y, 0); 
 		top.Vertex3f(0, y, 0);
-		top.Normal3f(0, y, 0);
-		top.Vertex3f(x, y, z);
-		top.Normal3f(0, y, 0);
-		top.Vertex3f(cos(angle + GL_PI / 16), y, sin(angle + GL_PI / 16));
-		
-		normalsBatch.Vertex3f(x, y, z);
-		normalsBatch.Vertex3f(x, 2*y, z);
+
+		if (flatShading < 90) {
+			top.Normal3f(0, y, 0);
+			top.Vertex3f(x, y, z);
+			top.Normal3f(0, y, 0);
+			top.Vertex3f(xNext, y, zNext);
+			normalsBatch.Vertex3f(x, y, z);
+			normalsBatch.Vertex3f(x, 2 * y, z);
+		} else {
+			top.Normal3f(0, y, 0);
+			top.Vertex3f(x, y, z);
+			top.Normal3f(0, y, 0);
+			top.Vertex3f(xNext, y, zNext);
+			normalsBatch.Vertex3f(x, y, z);
+			normalsBatch.Vertex3f(x + , y + , z + );
+		}		
 	}
 
-
-
 	// Mantel
-	for (float angle = 0.0f; angle < 2 * GL_PI; angle += GL_PI / 16) {
+	for (float angle = 0.0f; angle < 2 * GL_PI; angle += GL_PI / accuarancy) {
 		x = cos(angle);
-		y = 1.0f;
 		z = sin(angle);
-		float xNext = cos(angle + GL_PI / 16);
-		float zNext = sin(angle + GL_PI / 16);
+		float xNext = cos(angle + GL_PI / accuarancy);
+		float zNext = sin(angle + GL_PI / accuarancy);
 
-		if (flatShading) {
-			//std::cerr << "bla" << std::endl;
-			plane.Normal3f(cos(angle + GL_PI / 32), 0, sin(angle + GL_PI / 32));
+		if (flatShading < 45) {
+			plane.Normal3f(cos(angle + GL_PI / dAccuarancy), 0, sin(angle + GL_PI / dAccuarancy));
 			normalsBatch.Vertex3f(x, y, z);
-			normalsBatch.Vertex3f(x + cos(angle + GL_PI / 32), y, z + sin(angle + GL_PI / 32));
-		} else {
+			normalsBatch.Vertex3f(x + cos(angle + GL_PI / dAccuarancy), y, z + sin(angle + GL_PI / dAccuarancy));
+		} else if (flatShading < 90) {
 			plane.Normal3f(x, 0, z);
 			normalsBatch.Vertex3f(x, y, z);
 			normalsBatch.Vertex3f(2 * x, y, 2 * z);
+		} else {
+			plane.Normal3f(x, 0, z);
+			normalsBatch.Vertex3f(x, y, z);
+			normalsBatch.Vertex3f(x + , y + , z +);
 		}
+
 		plane.Vertex3f(x, y, z);		
 
-		if (flatShading) {
-			plane.Normal3f(cos(angle + GL_PI / 32), 0, sin(angle + GL_PI / 32));
+		if (flatShading < 45) {
+			plane.Normal3f(cos(angle + GL_PI / dAccuarancy), 0, sin(angle + GL_PI / dAccuarancy));
 			normalsBatch.Vertex3f(x, -y, z);
-			normalsBatch.Vertex3f(x + cos(angle + GL_PI / 32), -y, z + sin(angle + GL_PI / 32));
-		} else {
+			normalsBatch.Vertex3f(x + cos(angle + GL_PI / dAccuarancy), -y, z + sin(angle + GL_PI / dAccuarancy));
+		} else if (flatShading < 90) {
 			plane.Normal3f(x, 0, z);
 			normalsBatch.Vertex3f(x, -y, z);
 			normalsBatch.Vertex3f(2 * x, -y, 2 * z);
+		} else {
+			plane.Normal3f(x, 0, z);
+			normalsBatch.Vertex3f(x, y, z);
+			normalsBatch.Vertex3f(x +, y + , z + );
 		}
+
 		plane.Vertex3f(x, -y, z);
 
-		if (flatShading) {
-			plane.Normal3f(cos(angle + GL_PI / 32), 0, sin(angle + GL_PI / 32));
+		if (flatShading < 45) {
+			plane.Normal3f(cos(angle + GL_PI / dAccuarancy), 0, sin(angle + GL_PI / dAccuarancy));
 			normalsBatch.Vertex3f(xNext, y, zNext);
-			normalsBatch.Vertex3f(xNext + cos(angle + GL_PI / 32), y, zNext + sin(angle + GL_PI / 32));
-		} else {
+			normalsBatch.Vertex3f(xNext + cos(angle + GL_PI / dAccuarancy), y, zNext + sin(angle + GL_PI / dAccuarancy));
+		} else if (flatShading < 90){
 			plane.Normal3f(xNext, 0, zNext);
 			normalsBatch.Vertex3f(xNext, y, zNext);
 			normalsBatch.Vertex3f(2 * xNext, y, 2 * zNext);
-		}	
+		} else {
+			plane.Normal3f(x, 0, z);
+			normalsBatch.Vertex3f(x, y, z);
+			normalsBatch.Vertex3f(x + , y + , z + );
+		}
+
 		plane.Vertex3f(xNext, y, zNext);
 
-		if (flatShading) {
-			plane.Normal3f(cos(angle + GL_PI / 32), 0, sin(angle + GL_PI / 32));
+		if (flatShading < 45) {
+			plane.Normal3f(cos(angle + GL_PI / dAccuarancy), 0, sin(angle + GL_PI / dAccuarancy));
 			normalsBatch.Vertex3f(xNext, y, zNext);
-			normalsBatch.Vertex3f(xNext + cos(angle + GL_PI / 32), y, zNext + sin(angle + GL_PI / 32));
-		} else {
+			normalsBatch.Vertex3f(xNext + cos(angle + GL_PI / dAccuarancy), y, zNext + sin(angle + GL_PI / dAccuarancy));
+		} else if (flatShading < 90){
 			plane.Normal3f(xNext, 0, zNext);
 			normalsBatch.Vertex3f(xNext, y, zNext);
 			normalsBatch.Vertex3f(2 * xNext, y, 2 * zNext);
-		}			
-		plane.Vertex3f(xNext, y, zNext);
-		
+		} else {
+			plane.Normal3f(x, 0, z);
+			normalsBatch.Vertex3f(x, y, z);
+			normalsBatch.Vertex3f(x + , y + , z + );
+		}
 
-		if (flatShading) {
-			plane.Normal3f(cos(angle + GL_PI / 32), 0, sin(angle + GL_PI / 32));
+		plane.Vertex3f(xNext, y, zNext);		
+
+		if (flatShading < 45) {
+			plane.Normal3f(cos(angle + GL_PI / dAccuarancy), 0, sin(angle + GL_PI / dAccuarancy));
 			normalsBatch.Vertex3f(xNext, -y, zNext);
-			normalsBatch.Vertex3f(xNext + cos(angle + GL_PI / 32), -y, zNext + sin(angle + GL_PI / 32));
-		} else {
+			normalsBatch.Vertex3f(xNext + cos(angle + GL_PI / dAccuarancy), -y, zNext + sin(angle + GL_PI / dAccuarancy));
+		} else if (flatShading < 90) {
 			plane.Normal3f(x, 0, z);
 			normalsBatch.Vertex3f(x, -y, z);
 			normalsBatch.Vertex3f(2 * x, -y, 2 * z);
-		}			
-		plane.Vertex3f(x, -y, z);
-		
-
-		if (flatShading) {
-			plane.Normal3f(cos(angle + GL_PI / 32), 0, sin(angle + GL_PI / 32));
-			normalsBatch.Vertex3f(xNext, -y, zNext);
-			normalsBatch.Vertex3f(xNext + cos(angle + GL_PI / 32), -y, zNext + sin(angle + GL_PI / 32));
+		} else {
+			plane.Normal3f(x, 0, z);
+			normalsBatch.Vertex3f(x, y, z);
+			normalsBatch.Vertex3f(x + , y + , z + );
 		}
-		else {
+
+		plane.Vertex3f(x, -y, z);		
+
+		if (flatShading < 45) {
+			plane.Normal3f(cos(angle + GL_PI / dAccuarancy), 0, sin(angle + GL_PI / dAccuarancy));
+			normalsBatch.Vertex3f(xNext, -y, zNext);
+			normalsBatch.Vertex3f(xNext + cos(angle + GL_PI / dAccuarancy), -y, zNext + sin(angle + GL_PI / dAccuarancy));
+		} else if (flatShading < 90) {
 			plane.Normal3f(xNext, 0, zNext);
 			normalsBatch.Vertex3f(xNext, -y, zNext);
 			normalsBatch.Vertex3f(2 * xNext, -y, 2 * zNext);
-		}			
-		plane.Vertex3f(xNext, -y, zNext);
-		
+		} else {
+			plane.Normal3f(x, 0, z);
+			normalsBatch.Vertex3f(x, y, z);
+			normalsBatch.Vertex3f(x + , y + , z + );
+		}
+
+		plane.Vertex3f(xNext, -y, zNext);		
 	}
-		
-	for (float angle = 0.0f; angle < 2 * GL_PI; angle += GL_PI / 16) {
+	
+	// Boden
+	for (float angle = 0.0f; angle < 2 * GL_PI; angle += GL_PI / accuarancy) {
 		x = cos(angle);
-		y = 1.0f;
 		z = sin(angle);
-		float xNext = cos(angle + GL_PI / 16);
-		float zNext = sin(angle + GL_PI / 16);
-		// Boden
+		float xNext = cos(angle + GL_PI / accuarancy);
+		float zNext = sin(angle + GL_PI / accuarancy);
+		
 		bottom.Normal3f(0, -y, 0);
 		bottom.Vertex3f(0, -y, 0);
-		bottom.Normal3f(0, -y, 0);
-		bottom.Vertex3f(x, -y, z);
-		bottom.Normal3f(0, -y, 0);
-		bottom.Vertex3f(xNext, -y, zNext);
-		normalsBatch.Vertex3f(x, -y, z);
-		normalsBatch.Vertex3f(x, 2 * -y, z);
+				
+		if (flatShading < 90) {
+			bottom.Normal3f(0, -y, 0);
+			bottom.Vertex3f(x, -y, z);
+			top.Normal3f(0, -y, 0);
+			bottom.Vertex3f(xNext, -y, zNext);
+			normalsBatch.Vertex3f(x, -y, z);
+			normalsBatch.Vertex3f(x, 2 * -y, z);
+		} else {
+			bottom.Normal3f(0, -y, 0);
+			bottom.Vertex3f(x, -y, z);
+			top.Normal3f(0, -y, 0);
+			bottom.Vertex3f(xNext, -y, zNext);
+			normalsBatch.Vertex3f(x, -y, z);
+			normalsBatch.Vertex3f(x + , y + , z + );
+		}		
 	}	
 		
 	top.End();
