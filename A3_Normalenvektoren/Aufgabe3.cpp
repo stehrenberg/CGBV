@@ -22,6 +22,7 @@
 #include <math3d.h>
 #include <GL/glut.h>
 #include <AntTweakBar.h>
+#include <ImageLoader/ImageLoader.h>
 
 GLMatrixStack modelViewMatrix;
 GLMatrixStack projectionMatrix;
@@ -32,6 +33,12 @@ GLBatch bottom;
 GLBatch plane;
 GLBatch normalsBatch;
 GLuint shaders;
+
+//Textur Id für die Texture-Map
+GLuint TexId[1];
+
+//Dateinamen für die Texture-Map
+const std::string TextureMapName = "../Texturen/FLOOR.BMP";
 
 // Prototypen
 void CreateTriangle(void);
@@ -134,9 +141,9 @@ void CreateGeometry()
 	bottom.Reset();
 	normalsBatch.Reset();
 
-	top.Begin(GL_TRIANGLES, nArray);
-	plane.Begin(GL_TRIANGLES, nArray);
-	bottom.Begin(GL_TRIANGLES, nArray);
+	top.Begin(GL_TRIANGLES, nArray,0);
+	plane.Begin(GL_TRIANGLES, nArray, 1);
+	bottom.Begin(GL_TRIANGLES, nArray, 0);
 	normalsBatch.Begin(GL_LINES, tArray);
 
 	// Deckel
@@ -314,9 +321,11 @@ void CreateGeometry()
 	normalsBatch.End();
 	
 	//Shader Programme laden. Die letzen Argumente geben die Shader-Attribute an. Hier wird Vertex und Normale gebraucht.
-	shaders =  gltLoadShaderPairWithAttributes("VertexShader.glsl", "FragmentShader.glsl", 2, 
+	// Fuer Texturmapping wird Anzahl der Parameter auf 3!
+	shaders =  gltLoadShaderPairWithAttributes("VertexShader.glsl", "FragmentShader.glsl", 3, 
 		GLT_ATTRIBUTE_VERTEX, "vVertex", 
-		GLT_ATTRIBUTE_NORMAL, "vNormal");
+		GLT_ATTRIBUTE_NORMAL, "vNormal",
+		GLT_ATTRIBUTE_TEXTURE0, "vTexCoord");
 	
 	gltCheckErrors(shaders);
 
@@ -337,6 +346,8 @@ void RenderScene(void)
 	M3DMatrix44f rot;
 	m3dQuatToRotationMatrix(rot,rotation);
 	modelViewMatrix.MultMatrix(rot);
+
+	glBindTexture(GL_TEXTURE_2D, TexId[0]);
 	
 	//setze den Shader für das Rendern
 	glUseProgram(shaders);
@@ -357,9 +368,9 @@ void RenderScene(void)
 	glUniform4fv(glGetUniformLocation(shaders, "mat_specular"),1,mat_specular);
 	
 	//Zeichne Model
-	top.Draw();
+	//top.Draw();
 	bottom.Draw();
-	plane.Draw();
+	//plane.Draw();
 	if (showNormals)
 		normalsBatch.Draw();
 
@@ -376,7 +387,7 @@ void RenderScene(void)
 // Initialisierung des Rendering Kontextes
 void SetupRC()
 {
-	// Schwarzer Hintergrund
+	// Blauer Hintergrund
 	glClearColor( 0.12f,0.35f,0.674f,0.0f ) ;
 
 	// In Uhrzeigerrichtung zeigende Polygone sind die Vorderseiten.
@@ -384,6 +395,36 @@ void SetupRC()
 	glFrontFace(GL_CCW);
 		
 	transformPipeline.SetMatrixStacks(modelViewMatrix,projectionMatrix);
+
+	img::ImageLoader imgLoader;
+	
+	glGenTextures(1, TexId);
+
+	//Aktive Textur setzen
+	glBindTexture(GL_TEXTURE_2D, TexId[0]);
+
+	int width, height, type, internalformat;
+	bool jpg;
+	//Textur einlesen. Bei JPEG bildern das topdown flag auf true setzen, sonst stehen die Bilder auf den Kopf.
+	/*if (i == 2) jpg = true;
+	else */jpg = false;
+
+	type = GL_BGR;
+	internalformat = GL_RGB;
+
+	unsigned char* data = imgLoader.LoadTextureFromFile(TextureMapName, &width, &height, jpg);
+		
+	//Textur hochladen, bei JPEG bildern muss GL_BGR verwendet werden
+	glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height,
+			0, type, GL_UNSIGNED_BYTE, data);
+	delete[] data;
+
+	//Zugriffsflags setzen, wichtig!
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
 	//erzeuge die geometrie
 	CreateGeometry();
 	InitGUI();

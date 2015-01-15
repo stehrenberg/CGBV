@@ -35,6 +35,8 @@ uniform vec4 mat_specular;
 
 //Übergabe an den Fragment-Shader
 out vec4 color;
+// Textur Koordinaten mit uebergeben fuer Texturmapping!
+out vec2 TexCoord;
 void main()
 {	
 	
@@ -69,4 +71,6 @@ void main()
 
 	// Alle Fraben addieren
 	color = mat_emissive + light_ambient*mat_ambient + diffuse_color + specular_color;
+	
+	TexCoord = vTexCoord;
 }

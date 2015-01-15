@@ -9,9 +9,16 @@
 //
 // ---------------------------------
 #version 130
+
+uniform sampler2D TextureMap;
+
 in vec4 color ;
-out vec4 fragColor;
+in vec2 TexCoord;
+smooth out vec4 fragColor;
+
 void main()
 {
-	fragColor = color ;
+	fragColor = color * texture(TextureMap, TexCoord) ;
+	//fragColor = vec4(TexCoord, 0.0, 1.0);
+}
 }
