@@ -8,9 +8,9 @@
 #endif
 
 #define GL_PI 3.142f
-#define accuarancy 8
-#define dAccuarancy (accuarancy*2)
-#define nArray (dAccuarancy*6)
+#define accuaracy 8
+#define dAccuaracy (accuaracy*2)
+#define nArray (dAccuaracy*6)
 #define tArray (nArray*3)
 
 #include <iostream>
@@ -38,7 +38,7 @@ GLuint shaders;
 GLuint TexId[1];
 
 //Dateinamen für die Texture-Map
-const std::string TextureMapName = "../Texturen/FLOOR.BMP";
+const std::string TextureMapName = "../Texturen/e43_color_1280_720.bmp";
 
 // Prototypen
 void CreateTriangle(void);
@@ -66,7 +66,7 @@ TwBar *bar;
 
 // GUI-Schalter
 bool showNormals = false;
-bool flatShading = true;
+int flatShading = 90;
 
 // Prototypen
 void CreateGeometry(void);
@@ -97,10 +97,10 @@ void TW_CALL GetShowNormals(void *value, void *clientData)
 void TW_CALL SetFlatShading(const void *value, void *clientData)
 {
 	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
-	const bool* boolptr = static_cast<const bool*>(value);
+	const int* intptr = static_cast<const int*>(value);
 
 	//Setzen der Variable auf neuen Wert
-	flatShading = *boolptr;
+	flatShading = *intptr;
 	
 	CreateGeometry();
 }
@@ -108,10 +108,10 @@ void TW_CALL SetFlatShading(const void *value, void *clientData)
 void TW_CALL GetFlatShading(void *value, void *clientData)
 {
 	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
-	bool* boolptr = static_cast<bool*>(value);
+	int* intptr = static_cast<int*>(value);
 
 	//Variablen Wert and GUI weiterreichen
-	*boolptr = flatShading;
+	*intptr = flatShading;
 }
 
 void InitGUI()
@@ -141,17 +141,17 @@ void CreateGeometry()
 	bottom.Reset();
 	normalsBatch.Reset();
 
-	top.Begin(GL_TRIANGLES, nArray,0);
+	top.Begin(GL_TRIANGLES, nArray, 1);
 	plane.Begin(GL_TRIANGLES, nArray, 1);
-	bottom.Begin(GL_TRIANGLES, nArray, 0);
+	bottom.Begin(GL_TRIANGLES, nArray, 1);
 	normalsBatch.Begin(GL_LINES, tArray);
 
 	// Deckel
-	for (float angle = 0.0f; angle < 2 * GL_PI; angle += GL_PI / accuarancy) {
+	for (float angle = 0.0f; angle < 2 * GL_PI; angle += GL_PI / accuaracy) {
 		x = cos(angle);
 		z = sin(angle);
-		float xNext = cos(angle + GL_PI / accuarancy);
-		float zNext = sin(angle + GL_PI / accuarancy);
+		float xNext = cos(angle + GL_PI / accuaracy);
+		float zNext = sin(angle + GL_PI / accuaracy);
 
 		// Deckelmittelpunkt
 		top.Normal3f(0, y, 0); 
@@ -177,16 +177,16 @@ void CreateGeometry()
 	}
 
 	// Mantel
-	for (float angle = 0.0f; angle < 2 * GL_PI; angle += GL_PI / accuarancy) {
+	for (float angle = 0.0f; angle < 2 * GL_PI; angle += GL_PI / accuaracy) {
 		x = cos(angle);
 		z = sin(angle);
-		float xNext = cos(angle + GL_PI / accuarancy);
-		float zNext = sin(angle + GL_PI / accuarancy);
+		float xNext = cos(angle + GL_PI / accuaracy);
+		float zNext = sin(angle + GL_PI / accuaracy);
 
 		if (flatShading < 45) {
-			plane.Normal3f(cos(angle + GL_PI / dAccuarancy), 0, sin(angle + GL_PI / dAccuarancy));
+			plane.Normal3f(cos(angle + GL_PI / dAccuaracy), 0, sin(angle + GL_PI / dAccuaracy));
 			normalsBatch.Vertex3f(x, y, z);
-			normalsBatch.Vertex3f(x + cos(angle + GL_PI / dAccuarancy), y, z + sin(angle + GL_PI / dAccuarancy));
+			normalsBatch.Vertex3f(x + cos(angle + GL_PI / dAccuaracy), y, z + sin(angle + GL_PI / dAccuaracy));
 		} else if (flatShading < 90) {
 			plane.Normal3f(x, 0, z);
 			normalsBatch.Vertex3f(x, y, z);
@@ -198,12 +198,13 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(x +x , 2*y, z +z);
 		}
 
+		plane.MultiTexCoord2f(0, angle / (2 * GL_PI), 1);
 		plane.Vertex3f(x, y, z);		
 
 		if (flatShading < 45) {
-			plane.Normal3f(cos(angle + GL_PI / dAccuarancy), 0, sin(angle + GL_PI / dAccuarancy));
+			plane.Normal3f(cos(angle + GL_PI / dAccuaracy), 0, sin(angle + GL_PI / dAccuaracy));
 			normalsBatch.Vertex3f(x, -y, z);
-			normalsBatch.Vertex3f(x + cos(angle + GL_PI / dAccuarancy), -y, z + sin(angle + GL_PI / dAccuarancy));
+			normalsBatch.Vertex3f(x + cos(angle + GL_PI / dAccuaracy), -y, z + sin(angle + GL_PI / dAccuaracy));
 		} else if (flatShading < 90) {
 			plane.Normal3f(x, 0, z);
 			normalsBatch.Vertex3f(x, -y, z);
@@ -215,12 +216,13 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(x + x, -y - y, z + z);
 		}
 
+		plane.MultiTexCoord2f(0, angle / (2 * GL_PI), 0);
 		plane.Vertex3f(x, -y, z);
 
 		if (flatShading < 45) {
-			plane.Normal3f(cos(angle + GL_PI / dAccuarancy), 0, sin(angle + GL_PI / dAccuarancy));
+			plane.Normal3f(cos(angle + GL_PI / dAccuaracy), 0, sin(angle + GL_PI / dAccuaracy));
 			normalsBatch.Vertex3f(xNext, y, zNext);
-			normalsBatch.Vertex3f(xNext + cos(angle + GL_PI / dAccuarancy), y, zNext + sin(angle + GL_PI / dAccuarancy));
+			normalsBatch.Vertex3f(xNext + cos(angle + GL_PI / dAccuaracy), y, zNext + sin(angle + GL_PI / dAccuaracy));
 		} else if (flatShading < 90){
 			plane.Normal3f(xNext, 0, zNext);
 			normalsBatch.Vertex3f(xNext, y, zNext);
@@ -232,12 +234,13 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(xNext + xNext, y + y, zNext + zNext);
 		}
 
+		plane.MultiTexCoord2f(0, (angle + GL_PI / accuaracy) / (2 * GL_PI), 1);
 		plane.Vertex3f(xNext, y, zNext);
 
 		if (flatShading < 45) {
-			plane.Normal3f(cos(angle + GL_PI / dAccuarancy), 0, sin(angle + GL_PI / dAccuarancy));
+			plane.Normal3f(cos(angle + GL_PI / dAccuaracy), 0, sin(angle + GL_PI / dAccuaracy));
 			normalsBatch.Vertex3f(xNext, y, zNext);
-			normalsBatch.Vertex3f(xNext + cos(angle + GL_PI / dAccuarancy), y, zNext + sin(angle + GL_PI / dAccuarancy));
+			normalsBatch.Vertex3f(xNext + cos(angle + GL_PI / dAccuaracy), y, zNext + sin(angle + GL_PI / dAccuaracy));
 		} else if (flatShading < 90){
 			plane.Normal3f(xNext, 0, zNext);
 			normalsBatch.Vertex3f(xNext, y, zNext);
@@ -249,12 +252,13 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(xNext + xNext, y + y, zNext + zNext);
 		}
 
+		plane.MultiTexCoord2f(0, (angle + GL_PI / accuaracy) / (2 * GL_PI), 1);
 		plane.Vertex3f(xNext, y, zNext);		
 
 		if (flatShading < 45) {
-			plane.Normal3f(cos(angle + GL_PI / dAccuarancy), 0, sin(angle + GL_PI / dAccuarancy));
+			plane.Normal3f(cos(angle + GL_PI / dAccuaracy), 0, sin(angle + GL_PI / dAccuaracy));
 			normalsBatch.Vertex3f(xNext, -y, zNext);
-			normalsBatch.Vertex3f(xNext + cos(angle + GL_PI / dAccuarancy), -y, zNext + sin(angle + GL_PI / dAccuarancy));
+			normalsBatch.Vertex3f(xNext + cos(angle + GL_PI / dAccuaracy), -y, zNext + sin(angle + GL_PI / dAccuaracy));
 		} else if (flatShading < 90) {
 			plane.Normal3f(x, 0, z);
 			normalsBatch.Vertex3f(x, -y, z);
@@ -266,12 +270,13 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(x + x, -y - y, z + z);
 		}
 
-		plane.Vertex3f(x, -y, z);		
+		plane.MultiTexCoord2f(0, angle / 2 * GL_PI, 0); 
+		plane.Vertex3f(x, -y, z);
 
 		if (flatShading < 45) {
-			plane.Normal3f(cos(angle + GL_PI / dAccuarancy), 0, sin(angle + GL_PI / dAccuarancy));
+			plane.Normal3f(cos(angle + GL_PI / dAccuaracy), 0, sin(angle + GL_PI / dAccuaracy));
 			normalsBatch.Vertex3f(xNext, -y, zNext);
-			normalsBatch.Vertex3f(xNext + cos(angle + GL_PI / dAccuarancy), -y, zNext + sin(angle + GL_PI / dAccuarancy));
+			normalsBatch.Vertex3f(xNext + cos(angle + GL_PI / dAccuaracy), -y, zNext + sin(angle + GL_PI / dAccuaracy));
 		} else if (flatShading < 90) {
 			plane.Normal3f(xNext, 0, zNext);
 			normalsBatch.Vertex3f(xNext, -y, zNext);
@@ -283,15 +288,16 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(xNext + xNext, -y - y, zNext + zNext);
 		}
 
-		plane.Vertex3f(xNext, -y, zNext);		
+		plane.MultiTexCoord2f(0, (angle + GL_PI / accuaracy) / (2 * GL_PI), 0);
+		plane.Vertex3f(xNext, -y, zNext);
 	}
 	
 	// Boden
-	for (float angle = 0.0f; angle < 2 * GL_PI; angle += GL_PI / accuarancy) {
+	for (float angle = 0.0f; angle < 2 * GL_PI; angle += GL_PI / accuaracy) {
 		x = cos(angle);
 		z = sin(angle);
-		float xNext = cos(angle + GL_PI / accuarancy);
-		float zNext = sin(angle + GL_PI / accuarancy);
+		float xNext = cos(angle + GL_PI / accuaracy);
+		float zNext = sin(angle + GL_PI / accuaracy);
 		
 		// Bodenmittelpunkt
 		bottom.Normal3f(0, -y, 0);
@@ -368,9 +374,9 @@ void RenderScene(void)
 	glUniform4fv(glGetUniformLocation(shaders, "mat_specular"),1,mat_specular);
 	
 	//Zeichne Model
-	//top.Draw();
+	top.Draw();
 	bottom.Draw();
-	//plane.Draw();
+	plane.Draw();
 	if (showNormals)
 		normalsBatch.Draw();
 
