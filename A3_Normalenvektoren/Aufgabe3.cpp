@@ -7,7 +7,7 @@
 #include <windows.h>
 #endif
 
-#define GL_PI 3.142f
+#define GL_PI 3.141f
 #define accuaracy 8
 #define dAccuaracy (accuaracy*2)
 #define nArray (dAccuaracy*6)
@@ -198,6 +198,7 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(x +x , 2*y, z +z);
 		}
 
+		std::cerr << angle / (2 * GL_PI) << " ... 1" << std::endl;
 		plane.MultiTexCoord2f(0, angle / (2 * GL_PI), 1);
 		plane.Vertex3f(x, y, z);		
 
@@ -216,6 +217,7 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(x + x, -y - y, z + z);
 		}
 
+		std::cerr << angle / (2 * GL_PI) << " ... 0" << std::endl;
 		plane.MultiTexCoord2f(0, angle / (2 * GL_PI), 0);
 		plane.Vertex3f(x, -y, z);
 
@@ -234,6 +236,7 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(xNext + xNext, y + y, zNext + zNext);
 		}
 
+		std::cerr << (angle + GL_PI / accuaracy) / (2 * GL_PI) << " ... 1" << std::endl;
 		plane.MultiTexCoord2f(0, (angle + GL_PI / accuaracy) / (2 * GL_PI), 1);
 		plane.Vertex3f(xNext, y, zNext);
 
@@ -252,6 +255,7 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(xNext + xNext, y + y, zNext + zNext);
 		}
 
+		std::cerr << (angle + GL_PI / accuaracy) / (2 * GL_PI) << " ... 1" << std::endl;
 		plane.MultiTexCoord2f(0, (angle + GL_PI / accuaracy) / (2 * GL_PI), 1);
 		plane.Vertex3f(xNext, y, zNext);		
 
@@ -270,7 +274,8 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(x + x, -y - y, z + z);
 		}
 
-		plane.MultiTexCoord2f(0, angle / 2 * GL_PI, 0); 
+		std::cerr << angle / (2 * GL_PI) << " ... 0" << std::endl;
+		plane.MultiTexCoord2f(0, angle / 2 * GL_PI, 0);
 		plane.Vertex3f(x, -y, z);
 
 		if (flatShading < 45) {
@@ -288,8 +293,11 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(xNext + xNext, -y - y, zNext + zNext);
 		}
 
+		std::cerr << (angle + GL_PI / accuaracy) / (2 * GL_PI) << " ... 0" << std::endl;
 		plane.MultiTexCoord2f(0, (angle + GL_PI / accuaracy) / (2 * GL_PI), 0);
 		plane.Vertex3f(xNext, -y, zNext);
+		std::cerr << "-----" << std::endl;
+
 	}
 	
 	// Boden
