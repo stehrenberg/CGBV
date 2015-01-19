@@ -55,7 +55,7 @@ void main()
 	vec3 normal_vs = normalize(normalMatrix * (vNormal).xyz) ;
 	
 	// Betrachtervektor in Eye-Space
-	  vec3 view_dir_vs = normalize(-ecPos ) ; // lokaler Betrachtervektor im Eye-Space
+	vec3 view_dir_vs = normalize(-ecPos ) ; // lokaler Betrachtervektor im Eye-Space
     //vec3 light_dir_vs = vec3( 0.0, 0.0, 1.0); // infiniter Betrachtervektor im Eye-Space
 	
 	// Halfway Vektor für das Phong-Blinn Beleuchtungsmodell berechnen
