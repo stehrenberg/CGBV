@@ -203,7 +203,7 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(2 * x, -y, 2 * z);
 		} else {
 			// TODO Normalisieren!
-			plane.Normal3f(x, 1, z);
+			plane.Normal3f(x, -1, z);
 			normalsBatch.Vertex3f(x, -y, z);
 			normalsBatch.Vertex3f(x + x, -y - y, z + z);
 		}
@@ -254,7 +254,7 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(2 * x, -y, 2 * z);
 		} else {
 			// TODO Normalisieren!
-			plane.Normal3f(x, 1, z);
+			plane.Normal3f(x, -1, z);
 			normalsBatch.Vertex3f(x, -y, z);
 			normalsBatch.Vertex3f(x + x, -y - y, z + z);
 		}
@@ -271,7 +271,7 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(2 * xNext, -y, 2 * zNext);
 		} else {
 			// TODO Normalisieren!
-			plane.Normal3f(xNext, 1, zNext);
+			plane.Normal3f(xNext, -1, zNext);
 			normalsBatch.Vertex3f(xNext, -y, zNext);
 			normalsBatch.Vertex3f(xNext + xNext, -y - y, zNext + zNext);
 		}
