@@ -44,15 +44,15 @@ const std::string TextureMapName = "../Texturen/e43_color_1280_720.bmp";
 void CreateTriangle(void);
 
 /// View space light position
-float light_pos[4] = {0.5f,0.1f,-5.0f,1.0f} ;
+float light_pos[4] = {0.0f,0.0f,20.0f,1.0f} ;
 
 /// Lichtfarben
 float light_ambient[4] = {0.0, 0.0, 0.0, 1.0}; 
-float light_diffuse[4] = {0.9f,0.0f,0.5f,1.0f} ;
+float light_diffuse[4] = {1.0f,1.0f,1.0f,1.0f} ;
 float light_specular[4] = {1.0f,1.0f,1.0f,1.0f} ;
 
 //Materialeigenschaften
-float mat_emissive[4] = {0.0, 0.0, 0.0, 1.0};
+float mat_emissive[4] = {1.0, 1.0, 1.0, 1.0};
 float mat_ambient[4]  = {0.0, 0.0, 0.0, 1.0}; 
 float mat_diffuse[4]    = {1.0, 1.0, 1.0, 1.0};
 float mat_specular[4]   = {1.0, 1.0, 1.0, 1.0};
@@ -176,13 +176,17 @@ void CreateGeometry()
 		}		
 	}
 
-	// Mantel
+	/////////////////////////////// M A N T E L ///////////////////////////////
+
+	//////////// erstes Dreieck ////////////
 	for (float angle = 0.0f; angle < 2 * GL_PI; angle += GL_PI / accuaracy) {
 		x = cos(angle);
 		z = sin(angle);
 		float xNext = cos(angle + GL_PI / accuaracy);
 		float zNext = sin(angle + GL_PI / accuaracy);
 
+
+		// Vertex oben links
 		if (flatShading < 45) {
 			plane.Normal3f(cos(angle + GL_PI / dAccuaracy), 0, sin(angle + GL_PI / dAccuaracy));
 			normalsBatch.Vertex3f(x, y, z);
@@ -197,11 +201,12 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(x, y, z);
 			normalsBatch.Vertex3f(x +x , 2*y, z +z);
 		}
-
-		std::cerr << angle / (2 * GL_PI) << " ... 1" << std::endl;
+		if (angle == 0.0f)
+			std::cerr << /*angle / (2 * GL_PI) <<*/ " 1/1... 1" << std::endl;
 		plane.MultiTexCoord2f(0, angle / (2 * GL_PI), 1);
 		plane.Vertex3f(x, y, z);		
 
+		// Vertex unten links
 		if (flatShading < 45) {
 			plane.Normal3f(cos(angle + GL_PI / dAccuaracy), 0, sin(angle + GL_PI / dAccuaracy));
 			normalsBatch.Vertex3f(x, -y, z);
@@ -216,8 +221,8 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(x, -y, z);
 			normalsBatch.Vertex3f(x + x, -y - y, z + z);
 		}
-
-		std::cerr << angle / (2 * GL_PI) << " ... 0" << std::endl;
+		if (angle == 0.0f)
+			std::cerr /*<< angle / (2 * GL_PI)*/ << " 1/2... 0" << std::endl;
 		plane.MultiTexCoord2f(0, angle / (2 * GL_PI), 0);
 		plane.Vertex3f(x, -y, z);
 
@@ -236,10 +241,14 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(xNext + xNext, y + y, zNext + zNext);
 		}
 
-		std::cerr << (angle + GL_PI / accuaracy) / (2 * GL_PI) << " ... 1" << std::endl;
+		if (angle == 0.0f)
+			std::cerr /*<< (angle + GL_PI / accuaracy) / (2 * GL_PI)*/ << " 1/3... 1" << std::endl;
 		plane.MultiTexCoord2f(0, (angle + GL_PI / accuaracy) / (2 * GL_PI), 1);
 		plane.Vertex3f(xNext, y, zNext);
 
+		////////  zweites Dreieck //////// 
+
+		// Vertex oben rechts
 		if (flatShading < 45) {
 			plane.Normal3f(cos(angle + GL_PI / dAccuaracy), 0, sin(angle + GL_PI / dAccuaracy));
 			normalsBatch.Vertex3f(xNext, y, zNext);
@@ -254,11 +263,12 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(xNext, y, zNext);
 			normalsBatch.Vertex3f(xNext + xNext, y + y, zNext + zNext);
 		}
-
-		std::cerr << (angle + GL_PI / accuaracy) / (2 * GL_PI) << " ... 1" << std::endl;
+		if (angle == 0.0f)
+			std::cerr /*<< (angle + GL_PI / accuaracy) / (2 * GL_PI)*/ << "2/1 ... 1" << std::endl;
 		plane.MultiTexCoord2f(0, (angle + GL_PI / accuaracy) / (2 * GL_PI), 1);
 		plane.Vertex3f(xNext, y, zNext);		
 
+		// unten links
 		if (flatShading < 45) {
 			plane.Normal3f(cos(angle + GL_PI / dAccuaracy), 0, sin(angle + GL_PI / dAccuaracy));
 			normalsBatch.Vertex3f(xNext, -y, zNext);
@@ -273,11 +283,12 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(x, -y, z);
 			normalsBatch.Vertex3f(x + x, -y - y, z + z);
 		}
-
-		std::cerr << angle / (2 * GL_PI) << " ... 0" << std::endl;
+		if (angle == 0.0f)
+			std::cerr << /*angle / (2 * GL_PI) <<*/ " 2/2... 0" << std::endl;
 		plane.MultiTexCoord2f(0, angle / 2 * GL_PI, 0);
 		plane.Vertex3f(x, -y, z);
 
+		// unten rechts
 		if (flatShading < 45) {
 			plane.Normal3f(cos(angle + GL_PI / dAccuaracy), 0, sin(angle + GL_PI / dAccuaracy));
 			normalsBatch.Vertex3f(xNext, -y, zNext);
@@ -292,8 +303,8 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(xNext, -y, zNext);
 			normalsBatch.Vertex3f(xNext + xNext, -y - y, zNext + zNext);
 		}
-
-		std::cerr << (angle + GL_PI / accuaracy) / (2 * GL_PI) << " ... 0" << std::endl;
+		if (angle == 0.0f)
+			std::cerr /*<< (angle + GL_PI / accuaracy) / (2 * GL_PI)*/ << " 2/3... 0" << std::endl;
 		plane.MultiTexCoord2f(0, (angle + GL_PI / accuaracy) / (2 * GL_PI), 0);
 		plane.Vertex3f(xNext, -y, zNext);
 		std::cerr << "-----" << std::endl;
