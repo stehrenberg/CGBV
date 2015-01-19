@@ -58,7 +58,7 @@ float light_diffuse[4] = {1.0f,1.0f,1.0f,1.0f} ;
 float light_specular[4] = {1.0f,1.0f,1.0f,1.0f} ;
 
 //Materialeigenschaften
-float mat_emissive[4] = {1.0, 1.0, 1.0, 1.0};
+float mat_emissive[4] = {0.0, 0.0, 0.0, 1.0};
 float mat_ambient[4]  = {0.0, 0.0, 0.0, 1.0}; 
 float mat_diffuse[4]    = {1.0, 1.0, 1.0, 1.0};
 float mat_specular[4]   = {1.0, 1.0, 1.0, 1.0};
