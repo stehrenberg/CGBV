@@ -285,7 +285,7 @@ void CreateGeometry()
 		}
 		if (angle == 0.0f)
 			std::cerr << /*angle / (2 * GL_PI) <<*/ " 2/2... 0" << std::endl;
-		plane.MultiTexCoord2f(0, angle / 2 * GL_PI, 0);
+		plane.MultiTexCoord2f(0, angle / (2 * GL_PI), 0);
 		plane.Vertex3f(x, -y, z);
 
 		// unten rechts
