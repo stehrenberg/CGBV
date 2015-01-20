@@ -37,7 +37,7 @@ GLuint shaders;
 void CreateTriangle(void);
 
 /// View space light position
-float light_pos[4] = {0.5f,0.1f,-5.0f,1.0f} ;
+float light_pos[4] = {0.0f,0.0f,20.0f,1.0f} ;
 
 /// Lichtfarben
 float light_ambient[4] = {0.0, 0.0, 0.0, 1.0}; 
