@@ -159,10 +159,8 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(x, y, z);
 			normalsBatch.Vertex3f(x, 2 * y, z);
 		} else {
-			// TODO Normalisieren!
 			top.Normal3f(normalizeFactor * x, normalizeFactor * y, normalizeFactor * z);
 			top.Vertex3f(x, y, z);
-			// TODO Normalisieren!
 			top.Normal3f(normalizeFactor* xNext, normalizeFactor* y, normalizeFactor * zNext);
 			top.Vertex3f(xNext, y, zNext);
 			normalsBatch.Vertex3f(x, y, z);
@@ -186,7 +184,6 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(x, y, z);
 			normalsBatch.Vertex3f(2 * x, y, 2 * z);
 		} else {
-			// TODO Normalisieren!
 			plane.Normal3f(normalizeFactor * x, normalizeFactor * y, normalizeFactor * z);
 			normalsBatch.Vertex3f(x, y, z);
 			normalsBatch.Vertex3f(x +x , 2*y, z +z);
@@ -203,7 +200,6 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(x, -y, z);
 			normalsBatch.Vertex3f(2 * x, -y, 2 * z);
 		} else {
-			// TODO Normalisieren!
 			plane.Normal3f(normalizeFactor * x, normalizeFactor  * -y, normalizeFactor * z);
 			normalsBatch.Vertex3f(x, -y, z);
 			normalsBatch.Vertex3f(x + x, -y - y, z + z);
@@ -220,7 +216,6 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(xNext, y, zNext);
 			normalsBatch.Vertex3f(2 * xNext, y, 2 * zNext);
 		} else {
-			// TODO Normalisieren!
 			plane.Normal3f(normalizeFactor * xNext, normalizeFactor * y, normalizeFactor * zNext);
 			normalsBatch.Vertex3f(xNext, y, zNext);
 			normalsBatch.Vertex3f(xNext + xNext, y + y, zNext + zNext);
@@ -237,7 +232,6 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(xNext, y, zNext);
 			normalsBatch.Vertex3f(2 * xNext, y, 2 * zNext);
 		} else {
-			// TODO Normalisieren!
 			plane.Normal3f(normalizeFactor * xNext, normalizeFactor * y, normalizeFactor * zNext);
 			normalsBatch.Vertex3f(xNext, y, zNext);
 			normalsBatch.Vertex3f(xNext + xNext, y + y, zNext + zNext);
@@ -254,7 +248,6 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(x, -y, z);
 			normalsBatch.Vertex3f(2 * x, -y, 2 * z);
 		} else {
-			// TODO Normalisieren!
 			plane.Normal3f(normalizeFactor * x, normalizeFactor  * -y, normalizeFactor * z);
 			normalsBatch.Vertex3f(x, -y, z);
 			normalsBatch.Vertex3f(x + x, -y - y, z + z);
@@ -271,7 +264,6 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(xNext, -y, zNext);
 			normalsBatch.Vertex3f(2 * xNext, -y, 2 * zNext);
 		} else {
-			// TODO Normalisieren!
 			plane.Normal3f(normalizeFactor * xNext, normalizeFactor  * -y, normalizeFactor * zNext);
 			normalsBatch.Vertex3f(xNext, -y, zNext);
 			normalsBatch.Vertex3f(xNext + xNext, -y - y, zNext + zNext);
@@ -299,7 +291,6 @@ void CreateGeometry()
 			normalsBatch.Vertex3f(x, -y, z);
 			normalsBatch.Vertex3f(x, 2 * -y, z);
 		} else {
-			// TODO Normalisieren!
 			bottom.Normal3f(normalizeFactor * x, normalizeFactor  * -y, normalizeFactor * z);
 			bottom.Vertex3f(x, -y, z);
 			bottom.Normal3f(normalizeFactor * xNext, normalizeFactor * -y, normalizeFactor * zNext);
