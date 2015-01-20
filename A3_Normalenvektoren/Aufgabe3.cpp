@@ -58,8 +58,9 @@ float rotation[] = {0, 0,0,0};
 TwBar *bar;
 
 // GUI-Schalter
-bool showNormals = false;
-bool flatShading = true;
+bool showNormals = false;		/* Anzeige der Normalenvektoren im Grafikoutput */
+int flatShading = 44;			/* bestimmt den Winkel zwischen Normalenvektoren, die fuer
+								das Shading gemittelt werden sollen*/
 
 // Prototypen
 void CreateGeometry(void);
