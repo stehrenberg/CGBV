@@ -128,7 +128,7 @@ void CreateGeometry()
 {
 	float x, y, z, normalizeFactor;
 	y = 1.0f;
-	normalizeFactor = sqrt(2);
+	normalizeFactor = 1 / sqrt(2);
 	
 	plane.Reset();
 	top.Reset();
