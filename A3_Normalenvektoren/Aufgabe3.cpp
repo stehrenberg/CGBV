@@ -91,10 +91,10 @@ void TW_CALL GetShowNormals(void *value, void *clientData)
 void TW_CALL SetFlatShading(const void *value, void *clientData)
 {
 	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
-	const bool* boolptr = static_cast<const bool*>(value);
+	const int* intptr = static_cast<const int*>(value);
 
 	//Setzen der Variable auf neuen Wert
-	flatShading = *boolptr;
+	flatShading = *intptr;
 	
 	CreateGeometry();
 }
@@ -102,10 +102,10 @@ void TW_CALL SetFlatShading(const void *value, void *clientData)
 void TW_CALL GetFlatShading(void *value, void *clientData)
 {
 	//Pointer auf gesetzten Typ casten (der Typ der bei TwAddVarCB angegeben wurde)
-	bool* boolptr = static_cast<bool*>(value);
+	int* intptr = static_cast<int*>(value);
 
 	//Variablen Wert and GUI weiterreichen
-	*boolptr = flatShading;
+	*intptr = flatShading;
 }
 
 void InitGUI()
